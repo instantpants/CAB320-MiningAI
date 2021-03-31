@@ -8,7 +8,7 @@
 ### Branches?
 
 ### Push your changes
-*(branches stuff I can't remember off the top of my head)
+* (branches stuff I can't remember off the top of my head)
 * `git add -A`
 * `git commit -m 'your message here'`
 * `git push origin`
