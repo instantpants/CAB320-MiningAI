@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+    GROUP MEMBERS
+
+    Thomas Fabian   - N10582835
+    Celine Lindeque - 
+    Daniel Edwards  -
+"""
+"""
 Created on Wed Feb  3 17:56:47 2021
 
 @author: frederic
@@ -401,6 +408,7 @@ if __name__ == '__main__':
     import time
     """
     https://docs.google.com/document/d/1SZjn7aqxmaZgs2Ei4RpKSgsj8sX6Tu7364aL4TOCtQs/edit?usp=sharing
+    https://github.com/CelineLind/MiningAI/
     """
 
     underground = np.random.randn(3, 7) # 3 columns, 7 rows
