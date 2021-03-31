@@ -9,5 +9,6 @@ git pull origin
 
 ### Push your changes
 (branches stuff I can't remember off the top of my head)
-git commit -A
-git push 
+git add -A
+git commit -m 'your message here'
+git push origin
