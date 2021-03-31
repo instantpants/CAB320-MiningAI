@@ -397,7 +397,15 @@ def find_action_sequence(s0, s1):
         
         
         
-        
+if __name__ == '__main__':
+    """
+    https://docs.google.com/document/d/1SZjn7aqxmaZgs2Ei4RpKSgsj8sX6Tu7364aL4TOCtQs/edit?usp=sharing
+    """
+
+    underground = np.random.randn(3, 7) # 3 columns, 7 rows
+    transposed = underground.T
+
+    mine = Mine(underground, dig_tolerance=1)
         
     
     
