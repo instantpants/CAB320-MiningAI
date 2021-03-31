@@ -165,7 +165,6 @@ class Mine(search.Problem):
         Returns
         -------
         None.
-
         '''
         # super().__init__() # call to parent class constructor not needed
         
@@ -174,7 +173,25 @@ class Mine(search.Problem):
         self.dig_tolerance = dig_tolerance
         assert underground.ndim in (2,3)
         
-        raise NotImplementedError
+        if underground.ndim == 2:
+            # 2D Mine Setup
+            self.len_x = np.size(underground, axis=0)
+            self.len_z = np.size(underground, axis=1)
+            self.len_y = 0 # we're 2D mine atm so we won't have a y axis
+
+            self.cumsum_mine = np.cumsum(underground, axis=1)
+
+            self.initial = np.zeros(self.len_x, self.len_z)
+        else:
+            # 3D Mine Setup
+            self.len_x = np.size(underground, axis=0)
+            self.len_y = np.size(underground, axis=1)
+            self.len_z = np.size(underground, axis=2)
+
+            self.cumsum_mine = np.cumsum(underground, axis=2)
+
+            self.initial = np.zeros(self.len_x, self.len_y, self.len_z)
+
 
 
     def surface_neigbhours(self, loc):
@@ -271,9 +288,7 @@ class Mine(search.Problem):
             return '\n'.join('level {}\n'.format(z)
                    +str(self.underground[...,z]) for z in range(self.len_z))
                     
-                        
-                
-            return self.underground[loc[0], loc[1],:]
+            #return self.underground[loc[0], loc[1],:]
         
     
     @staticmethod   
@@ -409,16 +424,18 @@ if __name__ == '__main__':
         GitHub Repo:    https://github.com/CelineLind/MiningAI/
     """
 
-    # Our input
+    # Initialize underground state
     underground = np.random.randn(3, 7) # 3 columns, 7 rows
+    cumulative_sum = np.cumsum(underground, axis=1) # Just to show a cumulative sum
 
     # To see the mine as you would in real life (soil being on top) you must transpose 
     # the mine as the 'columns' will be shown normally from top to bottom.
     transposed = underground.T
-
+    
+    # Instantiate our mine object
     mine = Mine(underground, dig_tolerance=1)
     
-    # Test for search_dp_dig_plan()
+    """ Test for search_dp_dig_plan() """
     t0 = time.time()
     best_payoff, best_action_list, best_final_state = search_dp_dig_plan(mine)
     t1 = time.time()
@@ -426,7 +443,7 @@ if __name__ == '__main__':
     print ("DP solution -> ", best_final_state)
     print ("DP Solver took ",t1-t0, ' seconds')
     
-    # # Test for search_bb_dig_plan()
+    # """ Test for search_bb_dig_plan() """
     # t0 = time.time()
     # best_payoff, best_action_list, best_final_state = search_bb_dig_plan(mine)
     # t1 = time.time()
