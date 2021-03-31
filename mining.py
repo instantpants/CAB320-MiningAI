@@ -407,6 +407,11 @@ if __name__ == '__main__':
 
     mine = Mine(underground, dig_tolerance=1)
         
-    
+    t0 = time.time()
+    best_payoff, best_action_list, best_final_state = search_dp_dig_plan(mine)
+    t1 = time.time()
+
+    print ("DP solution -> ", best_final_state)
+    print ("DP Solver took ",t1-t0, ' seconds')
     
     
