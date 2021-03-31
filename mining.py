@@ -401,21 +401,24 @@ def find_action_sequence(s0, s1):
     # with the smallest s0[loc]
     raise NotImplementedError
         
-        
-        
-        
 if __name__ == '__main__':
     import time
     """
-    https://docs.google.com/document/d/1SZjn7aqxmaZgs2Ei4RpKSgsj8sX6Tu7364aL4TOCtQs/edit?usp=sharing
-    https://github.com/CelineLind/MiningAI/
+    Links:
+        GoogleDocs:     https://docs.google.com/document/d/1SZjn7aqxmaZgs2Ei4RpKSgsj8sX6Tu7364aL4TOCtQs/edit?usp=sharing
+        GitHub Repo:    https://github.com/CelineLind/MiningAI/
     """
 
+    # Our input
     underground = np.random.randn(3, 7) # 3 columns, 7 rows
+
+    # To see the mine as you would in real life (soil being on top) you must transpose 
+    # the mine as the 'columns' will be shown normally from top to bottom.
     transposed = underground.T
 
     mine = Mine(underground, dig_tolerance=1)
-        
+    
+    # Test for search_dp_dig_plan()
     t0 = time.time()
     best_payoff, best_action_list, best_final_state = search_dp_dig_plan(mine)
     t1 = time.time()
@@ -423,4 +426,10 @@ if __name__ == '__main__':
     print ("DP solution -> ", best_final_state)
     print ("DP Solver took ",t1-t0, ' seconds')
     
-    
+    # # Test for search_bb_dig_plan()
+    # t0 = time.time()
+    # best_payoff, best_action_list, best_final_state = search_bb_dig_plan(mine)
+    # t1 = time.time()
+
+    # print ("BB solution -> ", best_final_state)
+    # print ("BB Solver took ",t1-t0, ' seconds')
