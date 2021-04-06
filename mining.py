@@ -243,7 +243,13 @@ class Mine(search.Problem):
 
         '''        
         state = np.array(state)
-
+        
+        '''
+        NOTES: 
+            Calculate tolerances here, then all possible actions are those nodes that
+            don't violate the dig_tolerance constraint. 
+        '''
+        
         raise NotImplementedError
                 
   
