@@ -249,6 +249,14 @@ class Mine(search.Problem):
             Calculate tolerances here, then all possible actions are those nodes that
             don't violate the dig_tolerance constraint. 
         '''
+
+        # actions:
+        # dig down if:
+            # it's worth it
+                # 
+            # it doens't invalidate the dig tolerance
+                #is_dangerous?
+        # add it to states (tuple of extracted blocks)
         
         raise NotImplementedError
                 
@@ -372,6 +380,7 @@ def search_dp_dig_plan(mine):
     best_payoff, best_action_list, best_final_state
 
     '''
+
     raise NotImplementedError
 
 
