@@ -431,7 +431,7 @@ if __name__ == '__main__':
     # Initialize underground state
     maxr = 7
     minr = -2
-    underground = (max_value + abs(min_value)) * np.random.randn(3, 5) + minr # 3 columns, 5 rows
+    underground = (maxr + abs(minr)) * np.random.randn(3, 5) + minr # 3 columns, 5 rows
     cumulative_sum = np.cumsum(underground, axis=1) # Just to show a cumulative sum
 
     # To see the mine as you would in real life (soil being on top) you must transpose 
