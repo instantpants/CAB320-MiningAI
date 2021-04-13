@@ -252,8 +252,8 @@ class Mine(search.Problem):
 
         # actions:
         # dig down if:
-            # it's worth it
-                # 
+            # it's worth it - is that checked here or in the function?
+                # check payoff is good - does it check future payoffs or no?
             # it doens't invalidate the dig tolerance
                 #is_dangerous?
         # add it to states (tuple of extracted blocks)
