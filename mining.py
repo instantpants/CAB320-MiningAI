@@ -173,6 +173,37 @@ class Mine(search.Problem):
         self.dig_tolerance = dig_tolerance
         assert underground.ndim in (2,3)
         
+        """
+            UNDERGROUND
+           [[ 2. -0. -0. -1.  0.  4.  1. -0.  3.  0.  6.  8.  3.  3.  3.]
+            [ 7.  5.  7. -1.  2.  5.  1.  2. -1.  1.  6.  2.  8.  8.  2.]
+            [ 5.  1.  2. -0.  7. -0.  1.  6.  8.  5.  5.  1.  7.  1.  1.]
+            [ 4.  3.  7.  5.  3.  5.  7.  6.  6.  4.  4. -1.  5.  8.  0.]
+            [ 5. -0.  3.  1.  2.  4.  6.  6.  6.  2.  8.  3.  8.  6.  2.]
+            [-1. -1.  4.  6.  1.  2.  5.  6.  8.  5.  4.  3.  6.  6.  6.]
+            [ 6.  6.  5.  5.  7.  4.  3.  7.  4.  8.  7.  5.  5.  8. -1.]]
+
+            CUMULATIVE SUM
+           [[ 2. -0. -0. -1.  0.  4.  1. -0.  3.  0.  6.  8.  3.  3.  3.]
+            [ 9.  5.  7. -2.  2.  9.  2.  2.  2.  1. 12. 10. 11. 11.  5.]
+            [14.  6.  9. -2.  9.  9.  3.  8. 10.  6. 17. 11. 18. 12.  6.]
+            [18.  9. 16.  3. 12. 14. 10. 14. 16. 10. 21. 10. 23. 20.  6.]
+            [23.  9. 19.  4. 14. 18. 16. 20. 22. 12. 29. 13. 31. 26.  8.]
+            [22.  8. 23. 10. 15. 20. 21. 26. 30. 17. 33. 16. 37. 32. 14.]
+            [28. 14. 28. 15. 22. 24. 24. 33. 34. 25. 40. 21. 42. 40. 13.]]
+
+            INITIAL STATE
+           [[0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]]
+
+        """
+
+
         if underground.ndim == 2:
             # 2D Mine Setup
             self.len_x = np.size(underground, axis=0)
@@ -469,14 +500,26 @@ if __name__ == '__main__':
     """
 
     # Initialize underground state
-    underground = np.round(9 * np.random.rand(10, 7) - 1) # 3 columns, 5 rows
+    underground = np.round(9 * np.random.rand(15, 7) - 1) # 3 columns, 5 rows
     cumulative_sum = np.cumsum(underground, axis=1) # Just to show a cumulative sum
+    initial = np.zeros(shape=(15, 7) )
+
+    # underground = [[ 3. -0.  6. -1.  5.  4.  4. -1.  7.  8.],
+    #     [ 7.  2.  2.  4.  1. -0.  7. -1. -1.  7.],
+    #     [ 1.  2.  1.  0.  7.  4.  7.  2.  5.  2.],
+    #     [ 8. -1.  8. -0.  8.  5.  4.  5. -0.  6.],
+    #     [ 6.  4.  7.  5.  1.  1.  8.  6.  7. -1.],
+    #     [ 5. -0.  1.  4.  3.  2. -0.  4.  3.  2.],
+    #     [ 6.  3.  2.  5. -0.  1.  8.  0.  4.  0.]]
 
     # To see the mine as you would in real life (soil being on top) you must transpose 
     # the mine as the 'columns' will be shown normally from top to bottom.
     
     print(underground.T)
-
+    print('\n')
+    print(cumulative_sum.T)
+    print('\n')
+    print(initial.T)
     # # Instantiate our mine object
     # m = Mine(underground, dig_tolerance=1)
     
