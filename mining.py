@@ -469,38 +469,37 @@ if __name__ == '__main__':
     """
 
     # Initialize underground state
-    maxr = 7
-    minr = -2
-    underground = (maxr + abs(minr)) * np.random.randn(3, 5) + minr # 3 columns, 5 rows
+    underground = np.round(9 * np.random.rand(10, 7) - 1) # 3 columns, 5 rows
     cumulative_sum = np.cumsum(underground, axis=1) # Just to show a cumulative sum
 
     # To see the mine as you would in real life (soil being on top) you must transpose 
     # the mine as the 'columns' will be shown normally from top to bottom.
-    transposed = underground.T
     
-    # Instantiate our mine object
-    m = Mine(underground, dig_tolerance=1)
+    print(underground.T)
+
+    # # Instantiate our mine object
+    # m = Mine(underground, dig_tolerance=1)
     
-    # Check mine has been initialized properly
-    print(f"Underground Size: X{m.len_x}, Y{m.len_y}, Z{m.len_z}")
-    print("Underground:\n", m.underground.T)
-    print("Cumulative Sum:\n", m.cumsum_mine.T)
-    print("Initial State:\n", m.initial.T)
+    # # Check mine has been initialized properly
+    # print(f"Underground Size: X{m.len_x}, Y{m.len_y}, Z{m.len_z}")
+    # print("Underground:\n", m.underground.T)
+    # print("Cumulative Sum:\n", m.cumsum_mine.T)
+    # print("Initial State:\n", m.initial.T)
 
-    ## BEGIN SEARCHES ##
+    # ## BEGIN SEARCHES ##
 
-    # Dynamic Programming search
-    t0 = time.time()
-    best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
-    t1 = time.time()
-
-    print ("DP solution -> ", best_final_state)
-    print ("DP Solver took ",t1-t0, ' seconds')
-    
-    # Best Branch search
+    # # Dynamic Programming search
     # t0 = time.time()
-    best_payoff, best_action_list, best_final_state = search_bb_dig_plan(m)
-    t1 = time.time()
+    # best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
+    # t1 = time.time()
 
-    print ("BB solution -> ", best_final_state)
-    print ("BB Solver took ",t1-t0, ' seconds')
+    # print ("DP solution -> ", best_final_state)
+    # print ("DP Solver took ",t1-t0, ' seconds')
+    
+    # # Best Branch search
+    # # t0 = time.time()
+    # best_payoff, best_action_list, best_final_state = search_bb_dig_plan(m)
+    # t1 = time.time()
+
+    # print ("BB solution -> ", best_final_state)
+    # print ("BB Solver took ",t1-t0, ' seconds')
