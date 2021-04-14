@@ -263,7 +263,7 @@ class Mine(search.Problem):
         # calculate if it is dangerous
         if(is_dangerous(self, state) == False):
             print("not dangerous.")
-            # add to state - or tell result(to add it to state)
+            # add to state
         else:
             print("dangerous.")
             # don't
@@ -366,7 +366,12 @@ class Mine(search.Problem):
         No loops needed in the implementation!
         '''
         # convert to np.array in order to use numpy operators
-        state = np.array(state)         
+        state = np.array(state)
+
+        # go through all in for(?) loop, compare each column 
+
+        # check if given state breaches self.dig_tolerance
+        return abs(state[a]-state[b]) < self.dig_tolerance
 
         raise NotImplementedError
            
