@@ -250,7 +250,7 @@ class Mine(search.Problem):
             don't violate the dig_tolerance constraint. 
         '''
 
-        # actions:
+        # actions:x
         # dig down if:
             # 1) it doens't invalidate the dig tolerance
                 # is_dangerous?
@@ -260,13 +260,16 @@ class Mine(search.Problem):
         
         #########
 
+        test_state = state
+        # 
+
         # calculate if it is dangerous
-        if(is_dangerous(self, state) == False):
+        if(is_dangerous(self, test_state) == False):
             print("not dangerous.")
-            # add to state
+            # add to state, state = test_state
         else:
             print("dangerous.")
-            # don't
+            # remove change from test_state
 
         raise NotImplementedError
                 
