@@ -3,7 +3,7 @@
 """
     GROUP MEMBERS
 
-    Thomas Fabian   - N10582835
+    Thomas Fabian   - n10582835
     Celine Lindeque - n10481478
     Daniel Edwards  - n5538815
 """
