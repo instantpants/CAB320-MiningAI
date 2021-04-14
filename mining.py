@@ -252,12 +252,22 @@ class Mine(search.Problem):
 
         # actions:
         # dig down if:
-            # it's worth it - is that checked here or in the function?
-                # check payoff is good - does it check future payoffs or no?
-            # it doens't invalidate the dig tolerance
-                #is_dangerous?
+            # 1) it doens't invalidate the dig tolerance
+                # is_dangerous?
+            # 2) it's worth it - is that checked here or in the function?
+                # check payoff is good
         # add it to states (tuple of extracted blocks)
         
+        #########
+
+        # calculate if it is dangerous
+        if(is_dangerous(self, state) == False):
+            print("not dangerous.")
+            # add to state - or tell result(to add it to state)
+        else:
+            print("dangerous.")
+            # don't
+
         raise NotImplementedError
                 
   
@@ -342,6 +352,10 @@ class Mine(search.Problem):
         '''
         # convert to np.array in order to use tuple addressing
         # state[loc]   where loc is a tuple
+        
+        # read state, return the sum of all of it's values
+        #print(numpy.sum(state))
+
         raise NotImplementedError
 
 
@@ -380,7 +394,14 @@ def search_dp_dig_plan(mine):
     best_payoff, best_action_list, best_final_state
 
     '''
+    best_action_list = None
 
+    best_payoff = None
+
+    best_final_state = None
+
+    #return best_payoff, best_action_list, best_final_state 
+    # ^^^^ this line is correct (and correct order) but obviously variables aren't yet
     raise NotImplementedError
 
 
