@@ -168,41 +168,30 @@ class Mine(search.Problem):
         '''
         # super().__init__() # call to parent class constructor not needed
         
+        underground = np.array([
+        [-0.814,  0.637, 1.824, -0.563],
+        [ 0.559, -0.234, -0.366,  0.07 ],
+        [ 0.175, -0.284,  0.026, -0.316],
+        [ 0.212,  0.088,  0.304,  0.604],
+        [-1.231, 1.558, -0.467, -0.371]])
+
+        # underground = np.array([[[ 0.455,  0.579, -0.54 , -0.995, -0.771],
+        #                         [ 0.049,  1.311, -0.061,  0.185, -1.959],
+        #                         [ 2.38 , -1.404,  1.518, -0.856,  0.658],
+        #                         [ 0.515, -0.236, -0.466, -1.241, -0.354]],
+        #                         [[ 0.801,  0.072, -2.183,  0.858, -1.504],
+        #                         [-0.09 , -1.191, -1.083,  0.78 , -0.763],
+        #                         [-1.815, -0.839,  0.457, -1.029,  0.915],
+        #                         [ 0.708, -0.227,  0.874,  1.563, -2.284]],
+        #                         [[ -0.857,  0.309, -1.623,  0.364,  0.097],
+        #                         [-0.876,  1.188, -0.16 ,  0.888, -0.546],
+        #                         [-1.936, -3.055, -0.535, -1.561, -1.992],
+        #                         [ 0.316,  0.97 ,  1.097,  0.234, -0.296]]])
+
         self.underground = underground 
         # self.underground  should be considered as a 'read-only' variable!
         self.dig_tolerance = dig_tolerance
         assert underground.ndim in (2,3)
-        
-        """
-            UNDERGROUND
-           [[ 2. -0. -0. -1.  0.  4.  1. -0.  3.  0.  6.  8.  3.  3.  3.]
-            [ 7.  5.  7. -1.  2.  5.  1.  2. -1.  1.  6.  2.  8.  8.  2.]
-            [ 5.  1.  2. -0.  7. -0.  1.  6.  8.  5.  5.  1.  7.  1.  1.]
-            [ 4.  3.  7.  5.  3.  5.  7.  6.  6.  4.  4. -1.  5.  8.  0.]
-            [ 5. -0.  3.  1.  2.  4.  6.  6.  6.  2.  8.  3.  8.  6.  2.]
-            [-1. -1.  4.  6.  1.  2.  5.  6.  8.  5.  4.  3.  6.  6.  6.]
-            [ 6.  6.  5.  5.  7.  4.  3.  7.  4.  8.  7.  5.  5.  8. -1.]]
-
-            CUMULATIVE SUM
-           [[ 2. -0. -0. -1.  0.  4.  1. -0.  3.  0.  6.  8.  3.  3.  3.]
-            [ 9.  5.  7. -2.  2.  9.  2.  2.  2.  1. 12. 10. 11. 11.  5.]
-            [14.  6.  9. -2.  9.  9.  3.  8. 10.  6. 17. 11. 18. 12.  6.]
-            [18.  9. 16.  3. 12. 14. 10. 14. 16. 10. 21. 10. 23. 20.  6.]
-            [23.  9. 19.  4. 14. 18. 16. 20. 22. 12. 29. 13. 31. 26.  8.]
-            [22.  8. 23. 10. 15. 20. 21. 26. 30. 17. 33. 16. 37. 32. 14.]
-            [28. 14. 28. 15. 22. 24. 24. 33. 34. 25. 40. 21. 42. 40. 13.]]
-
-            INITIAL STATE
-           [[0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
-            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
-            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
-            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
-            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
-            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
-            [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]]
-
-        """
-
 
         if underground.ndim == 2:
             # 2D Mine Setup
@@ -212,16 +201,37 @@ class Mine(search.Problem):
 
             self.cumsum_mine = np.cumsum(underground, axis=1) # use Z axis
 
-            self.initial = np.zeros(shape=(self.len_x, self.len_z) )
+            self.initial = np.zeros(self.len_x)
         else:
             # 3D Mine Setup
-            self.len_x = np.size(underground, axis=0)
-            self.len_y = np.size(underground, axis=1)
-            self.len_z = np.size(underground, axis=2)
+            self.len_x = np.size(underground, axis=1)
+            self.len_y = np.size(underground, axis=2)
+            self.len_z = np.size(underground, axis=0)
 
-            self.cumsum_mine = np.cumsum(underground, axis=2) # use Z axis 
+            self.cumsum_mine = np.cumsum(underground, axis=0) # use Z axis 
 
-            self.initial = np.zeros(shape=(self.len_x, self.len_y, self.len_z))
+            self.initial = np.zeros((self.len_x, self.len_y))
+
+        # 2D Underground State
+        state = np.array([ 0, 1, 2, 1, 0])
+
+        # # 3D Underground State
+        # state = np.array([
+        #     [ 2, 1, 0, 0, 0],
+        #     [ 1, 1, 0, 0, 0],
+        #     [ 0, 0, 0, 0, 0],
+        #     [ 0, 0, 0, 0, 0]])
+
+        print("Underground:", self.underground.shape, ":\n", self.underground)
+        print("State:", state.shape, ":\n", state)
+        print("Cumsum:", self.cumsum_mine.shape, ":\n", self.cumsum_mine)
+        
+        print("Test:\n", self.cumsum_mine[range(self.len_z + 1), state])
+
+        self.payoff(state)
+
+        
+
 
     def surface_neigbhours(self, loc):
         '''
@@ -273,37 +283,30 @@ class Mine(search.Problem):
         a generator of valid actions
 
         '''        
+
+        # # 2D Underground State
+        # state = np.array([ 1, 1, 2, 1, 1])
+
+        # # 3D Underground State
+        # state = np.array([
+        #     [ 1, 1, 0, 0, 0],
+        #     [ 1, 1, 0, 0, 0],
+        #     [ 0, 0, 0, 0, 0],
+        #     [ 0, 0, 0, 0, 0]])
+
         state = np.array(state)
-        
-        '''
-        NOTES: 
-            Calculate tolerances here, then all possible actions are those nodes that
-            don't violate the dig_tolerance constraint. 
-        '''
+        actions = []
 
-        # actions:x
-        # dig down if:
-            # 1) it doens't invalidate the dig tolerance
-                # is_dangerous?
-            # 2) it's worth it - is that checked here or in the function?
-                # check payoff is good
-        # add it to states (tuple of extracted blocks)
-        
-        #########
-
-        test_state = state
-        # 
-
-        # calculate if it is dangerous
-        if(is_dangerous(self, test_state) == False):
-            print("not dangerous.")
-            # add to state, state = test_state
-        else:
-            print("dangerous.")
-            # remove change from test_state
-
-        raise NotImplementedError
-                
+        # Flatten array to be used in a single loop 
+        for i, v in enumerate(i for i in state.flat):
+            # Get 1D or 2D index of cell, 2D index must be modulated from i
+            idx = (i,) if state.ndim == 1 else (i % np.size(state, 0), i % np.size(state, 1),) 
+            
+            # If all neighbours are within tolerance, lets add the index as an action
+            if np.all(abs(v+1 - [state[n] for n in self.surface_neigbhours(idx)]) <= self.dig_tolerance):
+                actions.append(idx)
+    
+        return tuple(actions)
   
     def result(self, state, action):
         """Return the state that results from executing the given
@@ -384,30 +387,32 @@ class Mine(search.Problem):
         
         No loops needed in the implementation!        
         '''
-        # convert to np.array in order to use tuple addressing
-        # state[loc]   where loc is a tuple
         
-        # read state, return the sum of all of it's values
-        #print(numpy.sum(state))
+        if underground.ndim == 2:
+            cells = [self.cumsum_mine[x, v - 1] for x, v in enumerate(state)]
+        else:
+            cells = [self.cumsum_mine[b, x, y] for x, a in enumerate(state) for y, b in enumerate(a)]
 
-        raise NotImplementedError
+        payoff = sum(cells)
+        print("Payoff:\n", cells, "=", payoff)
+        return payoff
 
 
     def is_dangerous(self, state):
         '''
-        Return True iff the given state breaches the dig_tolerance constraints.
+        Return True if the given state breaches the dig_tolerance constraints.
         
         No loops needed in the implementation!
         '''
         # convert to np.array in order to use numpy operators
         state = np.array(state)
+        ax = 1 if state.ndim==2 else 0
+        col_sum = np.sum(state, axis=ax)
 
-        # go through all in for(?) loop, compare each column 
-
-        # check if given state breaches self.dig_tolerance
-        return abs(state[a]-state[b]) < self.dig_tolerance
-
-        raise NotImplementedError
+        for x, y in enumerate(col_sum):
+            print(state[x,y])
+        
+        #return abs(state[a]-state[b]) < self.dig_tolerance
            
 
 
@@ -499,36 +504,10 @@ if __name__ == '__main__':
         GitHub Repo:    https://github.com/CelineLind/MiningAI/
     """
 
-    # Initialize underground state
-    underground = np.round(9 * np.random.rand(15, 7) - 1) # 3 columns, 5 rows
-    cumulative_sum = np.cumsum(underground, axis=1) # Just to show a cumulative sum
-    initial = np.zeros(shape=(15, 7) )
-
-    # underground = [[ 3. -0.  6. -1.  5.  4.  4. -1.  7.  8.],
-    #     [ 7.  2.  2.  4.  1. -0.  7. -1. -1.  7.],
-    #     [ 1.  2.  1.  0.  7.  4.  7.  2.  5.  2.],
-    #     [ 8. -1.  8. -0.  8.  5.  4.  5. -0.  6.],
-    #     [ 6.  4.  7.  5.  1.  1.  8.  6.  7. -1.],
-    #     [ 5. -0.  1.  4.  3.  2. -0.  4.  3.  2.],
-    #     [ 6.  3.  2.  5. -0.  1.  8.  0.  4.  0.]]
-
-    # To see the mine as you would in real life (soil being on top) you must transpose 
-    # the mine as the 'columns' will be shown normally from top to bottom.
+    # ## INSTANTIATE MINE ##
+    underground = np.random.rand(5, 3) # 3 columns, 5 rows
+    m = Mine(underground, dig_tolerance=1)
     
-    print(underground.T)
-    print('\n')
-    print(cumulative_sum.T)
-    print('\n')
-    print(initial.T)
-    # # Instantiate our mine object
-    # m = Mine(underground, dig_tolerance=1)
-    
-    # # Check mine has been initialized properly
-    # print(f"Underground Size: X{m.len_x}, Y{m.len_y}, Z{m.len_z}")
-    # print("Underground:\n", m.underground.T)
-    # print("Cumulative Sum:\n", m.cumsum_mine.T)
-    # print("Initial State:\n", m.initial.T)
-
     # ## BEGIN SEARCHES ##
 
     # # Dynamic Programming search
