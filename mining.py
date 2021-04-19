@@ -213,25 +213,19 @@ class Mine(search.Problem):
             self.initial = np.zeros((self.len_x, self.len_y))
 
         # 2D Underground State
-        state = np.array([ 0, 1, 2, 1, 0])
+        state = np.array([0, 1, 2, 1, 0])
 
-        # # 3D Underground State
+        # 3D Underground State
         # state = np.array([
-        #     [ 2, 1, 0, 0, 0],
+        #     [ 3, 2, 1, 0, 0],
+        #     [ 2, 1, 1, 0, 0],
         #     [ 1, 1, 0, 0, 0],
-        #     [ 0, 0, 0, 0, 0],
         #     [ 0, 0, 0, 0, 0]])
 
         print("Underground:", self.underground.shape, ":\n", self.underground)
         print("State:", state.shape, ":\n", state)
         print("Cumsum:", self.cumsum_mine.shape, ":\n", self.cumsum_mine)
-        
-        print("Test:\n", self.cumsum_mine[range(self.len_z + 1), state])
-
-        self.payoff(state)
-
-        
-
+        print("Payoff:", self.payoff(state))
 
     def surface_neigbhours(self, loc):
         '''
@@ -387,15 +381,15 @@ class Mine(search.Problem):
         
         No loops needed in the implementation!        
         '''
-        
-        if underground.ndim == 2:
-            cells = [self.cumsum_mine[x, v - 1] for x, v in enumerate(state)]
-        else:
-            cells = [self.cumsum_mine[b, x, y] for x, a in enumerate(state) for y, b in enumerate(a)]
+        state = np.array(state)
+        c = np.nonzero(state) # 2D X Axis or 3D XY Axis
+        z = state[c] - 1      # Z Axis
 
-        payoff = sum(cells)
-        print("Payoff:\n", cells, "=", payoff)
-        return payoff
+        # Now get the payoff for each column, depending on the dimension
+        if state.ndim == 2:
+            return sum(self.cumsum_mine[z, c[0], c[1]])
+        else:
+            return sum(self.cumsum_mine[c[0], z])
 
 
     def is_dangerous(self, state):
