@@ -76,9 +76,7 @@ import time
 import numpy as np
 from mining import Mine, search_dp_dig_plan, search_bb_dig_plan, find_action_sequence
 
-
 np.set_printoptions(3)
-
 
 some_2D_underground = np.array([
         [-0.814,  0.637, 1.824, -0.563],
@@ -91,7 +89,6 @@ some_2D_underground = np.array([
 some_single_column_2D_underground = np.array([
         [-0.814,  0.637, 1.824, -0.563]
     ])
-
 
 some_2D_state = np.array([
         0, 1, 2, 3, 2, 1, 0
@@ -138,6 +135,27 @@ some_3D_state = np.array([
     ])
 
 def UndergroundTest(underground, state):
+    '''
+    Test function
+    
+    Performs tests on
+        - DP algorithm
+        - BB algorithm
+        - Find Action Sequence
+
+    Parameters
+    ----------
+    underground : np.array
+        2D or 3D. Each element of the array contains 
+        the profit value of the corresponding cell.
+    state : np.array
+        2D or 3D state with the same shape as underground
+        used for find_action_state() test
+
+    Returns
+    -------
+    None.
+    '''
     mine = Mine(underground)
     mine.console_display()
 
@@ -158,20 +176,24 @@ def UndergroundTest(underground, state):
     print('BB Best payoff:',best_payoff)
     print('BB Best final state:', best_final_state)      
     print('BB action list:', best_a_list)
-    print('BB Computation took {} seconds'.format(toc-tic))   
+    print('BB Computation took {} seconds\n'.format(toc-tic))   
 
     
     print('-------------- Find Action Sequence -------------- ')
+    initial_state = np.zeros(state.shape)
     tic = time.time()
-    sequence = find_action_sequence(np.zeros(state.shape), state)
+    sequence = find_action_sequence(initial_state, state)
     toc = time.time()
-    print('State:', state)
+    print('s0:\n', initial_state, '\ns1:\n', state)
     print('Sequence:', sequence)
-    print('Computation took {} seconds'.format(toc-tic))  
+    print('Computation took {} seconds\n'.format(toc-tic))  
 
 if __name__=='__main__':
     pass
+    print('='*10 + " 2D UNDERGROUND TEST " + '='*10)
     UndergroundTest(some_2D_underground, some_2D_state)
+    
+    print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
     UndergroundTest(some_3D_underground, some_3D_state)
 
     
