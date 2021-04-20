@@ -53,7 +53,16 @@ from numbers import Number
 
 import search
 
-
+def my_team():
+    '''
+    Return list of the team members of this assignment submission as a list
+    of triplet of t he form (student_number, first_name, last_name)
+    '''
+    return [
+        (10582835, 'Thomas', 'Fabian'),
+        (10481478, 'Celine', 'Lindeque'),
+        (5538815, 'Daniel', 'Edwards')
+    ]
     
 def convert_to_tuple(a):
     '''
@@ -409,9 +418,9 @@ class Mine(search.Problem):
             W = np.any(abs(state[:-1] - state[1:]) > tol)
 
             return E or W
-           
+        
 
-    # ========================  Class Mine  ==================================
+ # ========================  Class Mine  ==================================
     
     
     

@@ -93,6 +93,10 @@ some_2D_underground = np.array([
     ])
 
 
+some_single_column_2D_underground = np.array([
+        [-0.814,  0.637, 1.824, -0.563]
+    ])
+
 some_3D_underground = np.array([
         [   # Level 1 - Topsoil
             [ 0.455,  0.579, -0.54 , -0.995, -0.771],
@@ -114,7 +118,18 @@ some_3D_underground = np.array([
         ]
     ])
 
-    
+some_single_column_3D_underground = np.array([
+        [   # Level 1 - Topsoil
+            [ 0.455]
+        ],
+        [   # Level 2
+            [ 0.801]
+        ],
+        [   # Level 3
+            [-0.857]
+        ]
+    ])
+
 def test_2D_search_dig_plan():
     # x_len, z_len = 5,4
     # some_neg_bias = -0.2
@@ -159,7 +174,7 @@ def test_3D_search_dig_plan():
     
     my_underground =  some_3D_underground
     
-    mine = Mine(my_underground)   
+    mine = Mine(my_underground)
     mine.DEBUG_PRINTING(mine.initial)
     # mine.console_display()
 
