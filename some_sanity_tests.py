@@ -74,11 +74,7 @@ Here is the console output
 """
 import time
 import numpy as np
-
-# from mining import Mine, search_dp_dig_plan, search_bb_dig_plan
-
-from mining import Mine, search_dp_dig_plan, search_bb_dig_plan
-# from SOLUTION_mining import search_dp_rec
+from mining import Mine, search_dp_dig_plan, search_bb_dig_plan, find_action_sequence
 
 
 np.set_printoptions(3)
@@ -92,9 +88,13 @@ some_2D_underground = np.array([
         [-1.231,  1.558, -0.467,-0.371]
     ])
 
-
 some_single_column_2D_underground = np.array([
         [-0.814,  0.637, 1.824, -0.563]
+    ])
+
+
+some_2D_state = np.array([
+        0, 1, 2, 3, 2, 1, 0
     ])
 
 some_3D_underground = np.array([
@@ -130,54 +130,16 @@ some_single_column_3D_underground = np.array([
         ]
     ])
 
-def test_2D_search_dig_plan():
-    # x_len, z_len = 5,4
-    # some_neg_bias = -0.2
-    # my_underground = np.random.randn(x_len, z_len) + some_neg_bias
-    
-    my_underground =  some_2D_underground
+some_3D_state = np.array([
+        [ 3, 2, 1, 2, 1],
+        [ 2, 2, 1, 1, 1],
+        [ 1, 1, 1, 0, 0],
+        [ 1, 0, 0, 0, 0]        
+    ])
 
-    mine = Mine(my_underground)   
-    mine.DEBUG_PRINTING(mine.initial)
-    # mine.console_display()
-    
-    # print(my_underground.__repr__())
-
-    print('-------------- DP computations -------------- ')
-    tic = time.time()
-    best_payoff, best_a_list, best_final_state = search_dp_dig_plan(mine)
-    toc = time.time() 
-    print('DP Best payoff ',best_payoff)
-    print('DP Best final state ', best_final_state)  
-    print('DP action list ', best_a_list)
-    print('DP Computation took {} seconds\n'.format(toc-tic))   
-
-    
-    print('-------------- BB computations -------------- ')
-    tic = time.time()
-    best_payoff, best_a_list, best_final_state = search_bb_dig_plan(mine)
-    toc = time.time() 
-    print('BB Best payoff ',best_payoff)
-    print('BB Best final state ', best_final_state)      
-    print('BB action list ', best_a_list)
-    print('BB Computation took {} seconds'.format(toc-tic))   
-
-
-    
-
-def test_3D_search_dig_plan():
-    # np.random.seed(10)
-
-    # x_len,y_len,z_len = 3,4,5
-    # some_neg_bias = -0.3    
-    # my_underground = np.random.randn(x_len,y_len,z_len) + some_neg_bias
-    
-    my_underground =  some_3D_underground
-    
-    mine = Mine(my_underground)
-    mine.DEBUG_PRINTING(mine.initial)
-    # mine.console_display()
-
+def UndergroundTest(underground, state):
+    mine = Mine(underground)
+    mine.console_display()
 
     print('-------------- DP computations -------------- ')
     tic = time.time()
@@ -198,10 +160,18 @@ def test_3D_search_dig_plan():
     print('BB action list:', best_a_list)
     print('BB Computation took {} seconds'.format(toc-tic))   
 
+    
+    print('-------------- Find Action Sequence -------------- ')
+    tic = time.time()
+    sequence = find_action_sequence(np.zeros(state.shape), state)
+    toc = time.time()
+    print('State:', state)
+    print('Sequence:', sequence)
+    print('Computation took {} seconds'.format(toc-tic))  
 
 if __name__=='__main__':
     pass
-    print('= '*20)
-    test_2D_search_dig_plan()
-    print('= '*20)
-    test_3D_search_dig_plan()
+    UndergroundTest(some_2D_underground, some_2D_state)
+    UndergroundTest(some_3D_underground, some_3D_state)
+
+    

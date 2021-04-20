@@ -220,10 +220,10 @@ class Mine(search.Problem):
 
         print('-------------- DEBUG INFO -------------- ')
         print("Underground", self.underground.shape, ":\n", self.underground)
-        print("Initial State", state.shape, ":\n", state)
-        print("Payoff:", self.payoff(state))
-        print("Actions:", self.actions(state))
-        print("Is Dangerous?:", self.is_dangerous(state))
+        # print("Initial State", state.shape, ":\n", state)
+        # print("Payoff:", self.payoff(state))
+        # print("Actions:", self.actions(state))
+        # print("Is Dangerous?:", self.is_dangerous(state))
 
     def surface_neigbhours(self, loc):
         '''
@@ -506,7 +506,11 @@ def find_action_sequence(s0, s1):
 
     while(np.any(s0 != s1)):
         cost = s1 - s0
-        actions = np.where(cost != 0)
+        # We use where so that we can collect every possible 
+        # action at this time, alternative methods will have 
+        # us dig the same cell multiple times in a row which 
+        # will breach a tolerance of 1.
+        actions = np.where(cost != 0) 
         s0[actions] += 1
 
         # Append each action to the sequence, though as
@@ -529,96 +533,24 @@ if __name__ == '__main__':
         GitHub Repo:    https://github.com/CelineLind/MiningAI/
     """
 
-    ########################################
-    #            2D Underground            #
-    ########################################
-
-    # MULTIPLE COLUMN (5, 4) : (5)
-    some_2D_underground = np.array([
-        [-0.814,  0.637, 1.824, -0.563],
-        [ 0.559, -0.234,-0.366,  0.074],
-        [ 0.175, -0.284,  0.026,-0.316],
-        [ 0.212,  0.088,  0.304, 0.604],
-        [-1.231,  1.558, -0.467,-0.371]
-    ])
-
-    # Example state for 2D underground
-    state = np.array([4, 3, 2, 1, 2])
-
-    # SINGLE COLUMN (1, 4) : (1)
-    single_column_2D_underground = np.array([
-        [-0.814,  0.637, 1.824, -0.563]
-    ])
-    
-    # Example state for single column 2D underground
-    # state = np.array([0])
-
-    ########################################
-    #            3D Underground            #
-    ########################################
-    
-    # MULTIPLE COLUMN - UG(3, 4, 5) : S(4, 5)
-    some_3D_underground = np.array([
-        [
-            [ 0.455,  0.579, -0.54 , -0.995, -0.771],
-            [ 0.049,  1.311, -0.061,  0.185, -1.959],
-            [ 2.38 , -1.404,  1.518, -0.856,  0.658],
-            [ 0.515, -0.236, -0.466, -1.241, -0.354]
-        ],
-        [
-            [ 0.801,  0.072, -2.183,  0.858, -1.504],
-            [-0.09 , -1.191, -1.083,  0.78 , -0.763],
-            [-1.815, -0.839,  0.457, -1.029,  0.915],
-            [ 0.708, -0.227,  0.874,  1.563, -2.284]
-        ],
-        [
-            [ -0.857,  0.309, -1.623,  0.364,  0.097],
-            [-0.876,  1.188, -0.16 ,  0.888, -0.546],
-            [-1.936, -3.055, -0.535, -1.561, -1.992],
-            [ 0.316,  0.97 ,  1.097,  0.234, -0.296]
-        ]
-    ])
-
-    # Example state for 3D underground
-    # state = np.array([
-    #     [ 3, 2, 1, 0, 1],
-    #     [ 2, 2, 1, 0, 0],
-    #     [ 1, 1, 1, 1, 1],
-    #     [ 2, 1, 0, 1, 2]
-    # ])
-
-    # SINGLE COLUMN - UG(3,3,1) : S(1,1)
-    single_column_3D_underground = np.array([
-        [[ 0.455]],
-        [[ 0.801]],
-        [[-0.857]]
-    ])
-
-    # Example state for single column 3D underground
-    # state = np.array([
-    #     [ 3 ] 
-    # ])
-
     # ## INSTANTIATE MINE ##
     underground = np.random.rand(5, 3) # 3 columns, 5 rows
-    # m = Mine(underground, dig_tolerance=1)
-    
-    find_action_sequence(convert_to_tuple(np.zeros(state.shape, dtype=int)), convert_to_tuple(state))
+    m = Mine(underground, dig_tolerance=1)
 
     # ## BEGIN SEARCHES ##
 
-    # # Dynamic Programming search
-    # t0 = time.time()
-    # best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
-    # t1 = time.time()
+    # Dynamic Programming search
+    t0 = time.time()
+    best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
+    t1 = time.time()
 
-    # print ("DP solution -> ", best_final_state)
-    # print ("DP Solver took ",t1-t0, ' seconds')
+    print ("DP solution -> ", best_final_state)
+    print ("DP Solver took ",t1-t0, ' seconds')
     
-    # # Best Branch search
-    # # t0 = time.time()
-    # best_payoff, best_action_list, best_final_state = search_bb_dig_plan(m)
-    # t1 = time.time()
+    # Best Branch search
+    # t0 = time.time()
+    best_payoff, best_action_list, best_final_state = search_bb_dig_plan(m)
+    t1 = time.time()
 
-    # print ("BB solution -> ", best_final_state)
-    # print ("BB Solver took ",t1-t0, ' seconds')
+    print ("BB solution -> ", best_final_state)
+    print ("BB Solver took ",t1-t0, ' seconds')
