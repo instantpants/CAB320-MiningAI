@@ -191,14 +191,30 @@ class Mine(search.Problem):
 
             self.initial = np.zeros((self.len_x, self.len_y,), dtype=int)
 
+    # REMOVE THIS BEFORE SUBMITTING
+    def DEBUG_PRINTING(self, state):
+        '''
+        Prints some mine debug info:
+
+        - Underground shape and contents
+        - State shape and contents
+        - Payoff for supplied state
+        - Actions for supplied state
+        - Whether the state is dangeous
+
+        Parameters
+        ----------
+        state : A state to be debugged.
+            typically just use the initial state.
+        '''
         state = self.initial
 
+        print('-------------- DEBUG INFO -------------- ')
         print("Underground", self.underground.shape, ":\n", self.underground)
         print("Initial State", state.shape, ":\n", state)
         print("Payoff:", self.payoff(state))
         print("Actions:", self.actions(state))
         print("Is Dangerous?:", self.is_dangerous(state))
-
 
     def surface_neigbhours(self, loc):
         '''
