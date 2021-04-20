@@ -194,7 +194,7 @@ class Mine(search.Problem):
         state = self.initial
 
         print("Underground", self.underground.shape, ":\n", self.underground)
-        print("State", state.shape, ":\n", state)
+        print("Initial State", state.shape, ":\n", state)
         print("Payoff:", self.payoff(state))
         print("Actions:", self.actions(state))
         print("Is Dangerous?:", self.is_dangerous(state))
@@ -364,7 +364,6 @@ class Mine(search.Problem):
         
         No loops needed in the implementation!
         '''
-
         state = np.array(state)
         tol = self.dig_tolerance # Just for convenience/readability
 
@@ -493,7 +492,7 @@ if __name__ == '__main__':
     ########################################
 
     # MULTIPLE COLUMN (5, 4) : (5)
-    default_2D_underground = np.array([
+    some_2D_underground = np.array([
         [-0.814,  0.637, 1.824, -0.563],
         [ 0.559, -0.234,-0.366,  0.074],
         [ 0.175, -0.284,  0.026,-0.316],
@@ -517,7 +516,7 @@ if __name__ == '__main__':
     ########################################
     
     # MULTIPLE COLUMN - UG(3, 4, 5) : S(4, 5)
-    default_3D_underground = np.array([
+    some_3D_underground = np.array([
         [
             [ 0.455,  0.579, -0.54 , -0.995, -0.771],
             [ 0.049,  1.311, -0.061,  0.185, -1.959],
