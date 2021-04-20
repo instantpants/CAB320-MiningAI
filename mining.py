@@ -213,19 +213,22 @@ class Mine(search.Problem):
             self.initial = np.zeros((self.len_x, self.len_y))
 
         # 2D Underground State
-        state = np.array([0, 1, 2, 1, 0])
+        state = np.array([0, 1, 2, 1, 2])
 
         # 3D Underground State
         # state = np.array([
-        #     [ 3, 2, 1, 0, 0],
-        #     [ 2, 1, 1, 0, 0],
-        #     [ 1, 1, 0, 0, 0],
-        #     [ 0, 0, 0, 0, 0]])
+        #     [ 2, 1, 0, 1, 2],
+        #     [ 1, 1, 0, 1, 1],
+        #     [ 1, 1, 0, 1, 1],
+        #     [ 2, 1, 0, 1, 2]])
 
         print("Underground:", self.underground.shape, ":\n", self.underground)
         print("State:", state.shape, ":\n", state)
         print("Cumsum:", self.cumsum_mine.shape, ":\n", self.cumsum_mine)
         print("Payoff:", self.payoff(state))
+        print("Actions:", self.actions(state))
+        print("Is Dangerous?:", self.is_dangerous(state))
+
 
     def surface_neigbhours(self, loc):
         '''
@@ -277,27 +280,18 @@ class Mine(search.Problem):
         a generator of valid actions
 
         '''        
-
-        # # 2D Underground State
-        # state = np.array([ 1, 1, 2, 1, 1])
-
-        # # 3D Underground State
-        # state = np.array([
-        #     [ 1, 1, 0, 0, 0],
-        #     [ 1, 1, 0, 0, 0],
-        #     [ 0, 0, 0, 0, 0],
-        #     [ 0, 0, 0, 0, 0]])
-
         state = np.array(state)
+        shape = state.shape
         actions = []
 
-        # Flatten array to be used in a single loop 
+        # Flatten array to be used in a single loop
         for i, v in enumerate(i for i in state.flat):
             # Get 1D or 2D index of cell, 2D index must be modulated from i
-            idx = (i,) if state.ndim == 1 else (i % np.size(state, 0), i % np.size(state, 1),) 
-            
+            idx = (i,) if state.ndim == 1 else (i // shape[1], i % shape[1],) 
+            # All neighbouring indexes as a tuple, can't index without it!
+            nind = tuple(zip(*self.surface_neigbhours(idx)))
             # If all neighbours are within tolerance, lets add the index as an action
-            if np.all(abs(v+1 - [state[n] for n in self.surface_neigbhours(idx)]) <= self.dig_tolerance):
+            if np.all(abs(v+1 - state[nind]) <= self.dig_tolerance):
                 actions.append(idx)
     
         return tuple(actions)
@@ -398,15 +392,36 @@ class Mine(search.Problem):
         
         No loops needed in the implementation!
         '''
-        # convert to np.array in order to use numpy operators
-        state = np.array(state)
-        ax = 1 if state.ndim==2 else 0
-        col_sum = np.sum(state, axis=ax)
 
-        for x, y in enumerate(col_sum):
-            print(state[x,y])
-        
-        #return abs(state[a]-state[b]) < self.dig_tolerance
+        state = np.array(state)
+        tol = self.dig_tolerance # Just for convenience/readability
+
+        # Use slicing in each direction to compare, then check for any
+        # values that are greater than the tolerance.
+        if state.ndim == 2:
+            # For a 2D state we have 8 neighbours, and as we can only 
+            # slice left to right, we have to rotate the array by 
+            # 90 degrees to until we have all directions
+            SE = np.any(abs(state[:-1,:-1] - state[1:,1:]) > tol)
+            S = np.any(abs(state[:-1,:] - state[1:,:]) > tol)
+            E = np.any(abs(state[:,:-1] - state[:,1:]) > tol)
+            state = np.rot90(state)
+            SW = np.any(abs(state[:-1,:-1] - state[1:,1:]) > tol)
+            W = np.any(abs(state[:-1,:] - state[1:,:]) > tol)
+            N = np.any(abs(state[:,:-1] - state[:,1:]) > tol)
+            state = np.rot90(state)
+            NW = np.any(abs(state[:-1,:-1] - state[1:,1:]) > tol)
+            state = np.rot90(state)
+            NE = np.any(abs(state[:-1,:-1] - state[1:,1:]) > tol)
+            
+            return N or S or E or W or NE or SE or SW or NW
+        else:
+            # For a 1D state we just flip it horizontally once
+            E = np.any(abs(state[:-1] - state[1:]) > tol)
+            state = np.flip(state)
+            W = np.any(abs(state[:-1] - state[1:]) > tol)
+
+            return E or W
            
 
 
