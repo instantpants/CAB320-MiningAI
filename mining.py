@@ -377,7 +377,7 @@ class Mine(search.Problem):
         c = np.nonzero(state) # 2D X Axis or 3D XY Axis
         z = state[c] - 1      # Z Axis
 
-        # Now get the payoff for each column, depending on the dimension
+        # Now get the payoff for each column, depending on the shape
         if state.ndim == 2:
             return sum(self.cumsum_mine[z, c[0], c[1]])
         else:
@@ -500,9 +500,26 @@ def find_action_sequence(s0, s1):
     A sequence of actions to go from state s0 to state s1
 
     '''    
-    # approach: among all columns for which s0 < s1, pick the column loc
-    # with the smallest s0[loc]
-    raise NotImplementedError
+    s0 = np.array(s0)
+    s1 = np.array(s1)
+    sequence = []
+
+    while(np.any(s0 != s1)):
+        cost = s1 - s0
+        actions = np.where(cost != 0)
+        s0[actions] += 1
+
+        # Append each action to the sequence, though as
+        # np.where produces X,Y values as separate arrays
+        # we have to zip the 2D ones before appending
+        if s0.ndim == 2:
+            for a in zip(actions[0], actions[1]):
+                sequence.append(a)
+        else:
+            for a in actions[0]:
+                sequence.append((a,))
+    
+    return convert_to_tuple(sequence)
         
 if __name__ == '__main__':
     import time
@@ -526,7 +543,7 @@ if __name__ == '__main__':
     ])
 
     # Example state for 2D underground
-    # state = np.array([0, 1, 2, 1, 2])
+    state = np.array([4, 3, 2, 1, 2])
 
     # SINGLE COLUMN (1, 4) : (1)
     single_column_2D_underground = np.array([
@@ -564,9 +581,9 @@ if __name__ == '__main__':
 
     # Example state for 3D underground
     # state = np.array([
-    #     [ 2, 1, 0, 1, 2],
-    #     [ 1, 1, 0, 1, 1],
-    #     [ 1, 1, 0, 1, 1],
+    #     [ 3, 2, 1, 0, 1],
+    #     [ 2, 2, 1, 0, 0],
+    #     [ 1, 1, 1, 1, 1],
     #     [ 2, 1, 0, 1, 2]
     # ])
 
@@ -584,8 +601,10 @@ if __name__ == '__main__':
 
     # ## INSTANTIATE MINE ##
     underground = np.random.rand(5, 3) # 3 columns, 5 rows
-    m = Mine(underground, dig_tolerance=1)
+    # m = Mine(underground, dig_tolerance=1)
     
+    find_action_sequence(convert_to_tuple(np.zeros(state.shape, dtype=int)), convert_to_tuple(state))
+
     # ## BEGIN SEARCHES ##
 
     # # Dynamic Programming search
