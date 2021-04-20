@@ -167,29 +167,8 @@ class Mine(search.Problem):
         None.
         '''
         # super().__init__() # call to parent class constructor not needed
-        
-        underground = np.array([
-        [-0.814,  0.637, 1.824, -0.563],
-        [ 0.559, -0.234, -0.366,  0.07 ],
-        [ 0.175, -0.284,  0.026, -0.316],
-        [ 0.212,  0.088,  0.304,  0.604],
-        [-1.231, 1.558, -0.467, -0.371]])
-
-        # underground = np.array([[[ 0.455,  0.579, -0.54 , -0.995, -0.771],
-        #                         [ 0.049,  1.311, -0.061,  0.185, -1.959],
-        #                         [ 2.38 , -1.404,  1.518, -0.856,  0.658],
-        #                         [ 0.515, -0.236, -0.466, -1.241, -0.354]],
-        #                         [[ 0.801,  0.072, -2.183,  0.858, -1.504],
-        #                         [-0.09 , -1.191, -1.083,  0.78 , -0.763],
-        #                         [-1.815, -0.839,  0.457, -1.029,  0.915],
-        #                         [ 0.708, -0.227,  0.874,  1.563, -2.284]],
-        #                         [[ -0.857,  0.309, -1.623,  0.364,  0.097],
-        #                         [-0.876,  1.188, -0.16 ,  0.888, -0.546],
-        #                         [-1.936, -3.055, -0.535, -1.561, -1.992],
-        #                         [ 0.316,  0.97 ,  1.097,  0.234, -0.296]]])
-
-        self.underground = underground 
-        # self.underground  should be considered as a 'read-only' variable!
+    
+        self.underground = underground # should be considered as a 'read-only' variable!
         self.dig_tolerance = dig_tolerance
         assert underground.ndim in (2,3)
 
@@ -201,7 +180,7 @@ class Mine(search.Problem):
 
             self.cumsum_mine = np.cumsum(underground, axis=1) # use Z axis
 
-            self.initial = np.zeros(self.len_x)
+            self.initial = np.zeros((self.len_x,), dtype=int)
         else:
             # 3D Mine Setup
             self.len_x = np.size(underground, axis=1)
@@ -210,21 +189,12 @@ class Mine(search.Problem):
 
             self.cumsum_mine = np.cumsum(underground, axis=0) # use Z axis 
 
-            self.initial = np.zeros((self.len_x, self.len_y))
+            self.initial = np.zeros((self.len_x, self.len_y,), dtype=int)
 
-        # 2D Underground State
-        state = np.array([0, 1, 2, 1, 2])
+        state = self.initial
 
-        # 3D Underground State
-        # state = np.array([
-        #     [ 2, 1, 0, 1, 2],
-        #     [ 1, 1, 0, 1, 1],
-        #     [ 1, 1, 0, 1, 1],
-        #     [ 2, 1, 0, 1, 2]])
-
-        print("Underground:", self.underground.shape, ":\n", self.underground)
-        print("State:", state.shape, ":\n", state)
-        print("Cumsum:", self.cumsum_mine.shape, ":\n", self.cumsum_mine)
+        print("Underground", self.underground.shape, ":\n", self.underground)
+        print("State", state.shape, ":\n", state)
         print("Payoff:", self.payoff(state))
         print("Actions:", self.actions(state))
         print("Is Dangerous?:", self.is_dangerous(state))
@@ -262,7 +232,6 @@ class Mine(search.Problem):
                     L.append((loc[0]+dx, loc[1]+dy))
         return L
      
-    
     def actions(self, state):
         '''
         Return a generator of valid actions in the give state 'state'
@@ -284,14 +253,20 @@ class Mine(search.Problem):
         shape = state.shape
         actions = []
 
-        # Flatten array to be used in a single loop
-        for i, v in enumerate(i for i in state.flat):
+        # Flatten the state to be used in a single loop
+        for i, val in enumerate(i for i in state.flat):
+            next_val = val + 1
+
+            # Can't dig a cell if we're already at the bottom
+            if next_val > self.len_z:
+                continue
+
             # Get 1D or 2D index of cell, 2D index must be modulated from i
             idx = (i,) if state.ndim == 1 else (i // shape[1], i % shape[1],) 
             # All neighbouring indexes as a tuple, can't index without it!
             nind = tuple(zip(*self.surface_neigbhours(idx)))
             # If all neighbours are within tolerance, lets add the index as an action
-            if np.all(abs(v+1 - state[nind]) <= self.dig_tolerance):
+            if np.all(abs(next_val - state[nind]) <= self.dig_tolerance):
                 actions.append(idx)
     
         return tuple(actions)
@@ -305,7 +280,6 @@ class Mine(search.Problem):
         new_state[action] += 1
         return convert_to_tuple(new_state)
                 
-    
     def console_display(self):
         '''
         Display the mine on the console
@@ -336,8 +310,7 @@ class Mine(search.Problem):
                    +str(self.underground[...,z]) for z in range(self.len_z))
                     
             #return self.underground[loc[0], loc[1],:]
-        
-    
+          
     @staticmethod   
     def plot_state(state):
         if state.ndim==1:
@@ -385,7 +358,6 @@ class Mine(search.Problem):
         else:
             return sum(self.cumsum_mine[c[0], z])
 
-
     def is_dangerous(self, state):
         '''
         Return True if the given state breaches the dig_tolerance constraints.
@@ -424,8 +396,6 @@ class Mine(search.Problem):
             return E or W
            
 
-
-    
     # ========================  Class Mine  ==================================
     
     
@@ -455,9 +425,7 @@ def search_dp_dig_plan(mine):
 
     best_final_state = None
 
-    #return best_payoff, best_action_list, best_final_state 
-    # ^^^^ this line is correct (and correct order) but obviously variables aren't yet
-    raise NotImplementedError
+    return best_payoff, best_action_list, best_final_state
 
 
     
@@ -478,8 +446,15 @@ def search_bb_dig_plan(mine):
     best_payoff, best_action_list, best_final_state
 
     '''
-    
-    raise NotImplementedError
+    # TODO: psuedocode of this section before implementation
+
+    best_action_list = None
+
+    best_payoff = None
+
+    best_final_state = None
+
+    return best_payoff, best_action_list, best_final_state
 
 
 
@@ -512,6 +487,76 @@ if __name__ == '__main__':
         GoogleDocs:     https://docs.google.com/document/d/1SZjn7aqxmaZgs2Ei4RpKSgsj8sX6Tu7364aL4TOCtQs/edit?usp=sharing
         GitHub Repo:    https://github.com/CelineLind/MiningAI/
     """
+
+    ########################################
+    #            2D Underground            #
+    ########################################
+
+    # MULTIPLE COLUMN (5, 4) : (5)
+    default_2D_underground = np.array([
+        [-0.814,  0.637, 1.824, -0.563],
+        [ 0.559, -0.234,-0.366,  0.074],
+        [ 0.175, -0.284,  0.026,-0.316],
+        [ 0.212,  0.088,  0.304, 0.604],
+        [-1.231,  1.558, -0.467,-0.371]
+    ])
+
+    # Example state for 2D underground
+    # state = np.array([0, 1, 2, 1, 2])
+
+    # SINGLE COLUMN (1, 4) : (1)
+    single_column_2D_underground = np.array([
+        [-0.814,  0.637, 1.824, -0.563]
+    ])
+    
+    # Example state for single column 2D underground
+    # state = np.array([0])
+
+    ########################################
+    #            3D Underground            #
+    ########################################
+    
+    # MULTIPLE COLUMN - UG(3, 4, 5) : S(4, 5)
+    default_3D_underground = np.array([
+        [
+            [ 0.455,  0.579, -0.54 , -0.995, -0.771],
+            [ 0.049,  1.311, -0.061,  0.185, -1.959],
+            [ 2.38 , -1.404,  1.518, -0.856,  0.658],
+            [ 0.515, -0.236, -0.466, -1.241, -0.354]
+        ],
+        [
+            [ 0.801,  0.072, -2.183,  0.858, -1.504],
+            [-0.09 , -1.191, -1.083,  0.78 , -0.763],
+            [-1.815, -0.839,  0.457, -1.029,  0.915],
+            [ 0.708, -0.227,  0.874,  1.563, -2.284]
+        ],
+        [
+            [ -0.857,  0.309, -1.623,  0.364,  0.097],
+            [-0.876,  1.188, -0.16 ,  0.888, -0.546],
+            [-1.936, -3.055, -0.535, -1.561, -1.992],
+            [ 0.316,  0.97 ,  1.097,  0.234, -0.296]
+        ]
+    ])
+
+    # Example state for 3D underground
+    # state = np.array([
+    #     [ 2, 1, 0, 1, 2],
+    #     [ 1, 1, 0, 1, 1],
+    #     [ 1, 1, 0, 1, 1],
+    #     [ 2, 1, 0, 1, 2]
+    # ])
+
+    # SINGLE COLUMN - UG(3,3,1) : S(1,1)
+    single_column_3D_underground = np.array([
+        [[ 0.455]],
+        [[ 0.801]],
+        [[-0.857]]
+    ])
+
+    # Example state for single column 3D underground
+    # state = np.array([
+    #     [ 3 ] 
+    # ])
 
     # ## INSTANTIATE MINE ##
     underground = np.random.rand(5, 3) # 3 columns, 5 rows
