@@ -456,11 +456,12 @@ def search_dp_dig_plan(mine):
 
     # get all possible actions
     valid_actions = Mine.actions(mine, mine.underground)
-    print("valid actions: ",valid_actions) #(0, 0, 0)
+    print("valid actions: ",valid_actions) #(((0, 2),)
     result = Mine.result(mine, initial, valid_actions)
-    print("result: ",result) #(1, 1, 1)
+    print("result: ",result) #(1, 0, 1, 0, 0)
 
     # get the cumulative sum per column within the bounds given by actions
+
 
     # determine how far down to dig per column that doesn't become dangerous
 
@@ -548,7 +549,17 @@ def find_action_sequence(s0, s1):
                 sequence.append((a,))
     
     return convert_to_tuple(sequence)
-        
+
+
+
+def my_team():
+    """ 
+     Return the list of the team members of this assignment submission 
+     as a list    of triplet of the form (student_number, first_name, last_name)
+    """
+    return[(10582835, 'Thomas', 'Fabian'), (10481478, 'Celine', 'Lindeque'), (5538815, 'Daniel', 'Edwards') ]
+
+
 if __name__ == '__main__':
     import time
     """
