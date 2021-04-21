@@ -278,20 +278,27 @@ class Mine(search.Problem):
         shape = state.shape
         actions = []
 
-        # Flatten the state to be used in a single loop
+        print(state, shape)
+
+        # Flatten the state to be used in a single loop this allows us to work 
+        # with both 1D and 2D states in a single loop.
         for i, val in enumerate(i for i in state.flat):
+            # The value of the cell if it were dug (for neighbour comparisons)
             next_val = val + 1
 
             # Can't dig a cell if we're already at the bottom
             if next_val > self.len_z:
                 continue
 
-            # Get 1D or 2D index of cell, 2D index must be modulated from i
+            # Get 1D or 2D index of cell 'i'
+            # 2D index = (i,)
+            # 3D index = (floor(i / self.len_x), i % self.len_x)
             idx = (i,) if state.ndim == 1 else (i // shape[1], i % shape[1],) 
-            # All neighbouring indexes as a tuple, can't index without it!
-            nind = tuple(zip(*self.surface_neigbhours(idx)))
-            # If all neighbours are within tolerance, lets add the index as an action
-            if np.all(abs(next_val - state[nind]) <= self.dig_tolerance):
+            
+            # Convert neighbour indexes to a tuple for indexing.
+            nidx = tuple(zip(*self.surface_neigbhours(idx)))
+            # If all neighbours are within tolerance, lets add the index to actions
+            if np.all(abs(next_val - state[nidx]) <= self.dig_tolerance):
                 actions.append(idx)
     
         return tuple(actions)
@@ -374,14 +381,21 @@ class Mine(search.Problem):
         No loops needed in the implementation!        
         '''
         state = np.array(state)
-        c = np.nonzero(state) # 2D X Axis or 3D XY Axis (columns)
-        z = state[c] - 1      # Z Axis
 
-        # Now get the payoff for each column, depending on the shape
+        # Get the indexes of all non-zero values in the state, these are 
+        # columns that have been dug.
+        c = np.nonzero(state)
+
+        # Make a copy of the non-zero values and take 1 from each of them 
+        # as arrays are 0 terminated. (This is to access the correct depth)
+        z = state[c] - 1 
+
+        # Calculate the payoff by summing the cumulative sum at each index
+        # defined above.
         if state.ndim == 2:
-            return sum(self.cumsum_mine[z, c[0], c[1]])
+            return sum(self.cumsum_mine[z, c[0], c[1]]) # z, x, y
         else:
-            return sum(self.cumsum_mine[c[0], z])
+            return sum(self.cumsum_mine[c[0], z]) # x, z
 
     def is_dangerous(self, state):
         '''
@@ -442,7 +456,7 @@ def search_dp_dig_plan(mine):
 
     '''
     # TODO: REMOVE this is just for my visualisation
-    cumulative_sum = np.cumsum(mine.underground, axis=1) # Just to show a cumulative sum
+    cumulative_sum = mine.cumsum_mine # Just to show a cumulative sum
     transposed = mine.underground.T
     print(f"Underground Size: X{mine.len_x}, Y{mine.len_y}, Z{mine.len_z}")
     print("Underground:\n", mine.underground.T)
@@ -530,17 +544,16 @@ def find_action_sequence(s0, s1):
     sequence = []
 
     while(np.any(s0 != s1)):
-        cost = s1 - s0
-        # We use where so that we can collect every possible 
-        # action at this time, alternative methods will have 
-        # us dig the same cell multiple times in a row which 
-        # will breach a tolerance of 1.
-        actions = np.where(cost != 0) 
-        s0[actions] += 1
+        # Get all possible actions at this state where diff is != 0
+        diff = s1 - s0
+        actions = np.where(diff != 0) 
 
-        # Append each action to the sequence, though as
-        # np.where produces X,Y values as separate arrays
-        # we have to zip the 2D ones before appending
+        # Add 1 (dig cost) to each position in s0 so we can re-compute 
+        # diff next iteration
+        s0[actions] += 1 
+
+        # Loop through actions and add them to the sequence array as a 
+        # properly formatted tuple.
         if s0.ndim == 2:
             for a in zip(actions[0], actions[1]):
                 sequence.append(a)
@@ -549,15 +562,6 @@ def find_action_sequence(s0, s1):
                 sequence.append((a,))
     
     return convert_to_tuple(sequence)
-
-
-
-def my_team():
-    """ 
-     Return the list of the team members of this assignment submission 
-     as a list    of triplet of the form (student_number, first_name, last_name)
-    """
-    return[(10582835, 'Thomas', 'Fabian'), (10481478, 'Celine', 'Lindeque'), (5538815, 'Daniel', 'Edwards') ]
 
 
 if __name__ == '__main__':
