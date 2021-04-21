@@ -374,7 +374,7 @@ class Mine(search.Problem):
         No loops needed in the implementation!        
         '''
         state = np.array(state)
-        c = np.nonzero(state) # 2D X Axis or 3D XY Axis
+        c = np.nonzero(state) # 2D X Axis or 3D XY Axis (columns)
         z = state[c] - 1      # Z Axis
 
         # Now get the payoff for each column, depending on the shape
