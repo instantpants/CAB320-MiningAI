@@ -441,7 +441,31 @@ def search_dp_dig_plan(mine):
     best_payoff, best_action_list, best_final_state
 
     '''
+    # TODO: REMOVE this is just for my visualisation
+    cumulative_sum = np.cumsum(mine.underground, axis=1) # Just to show a cumulative sum
+    transposed = mine.underground.T
+    print(f"Underground Size: X{mine.len_x}, Y{mine.len_y}, Z{mine.len_z}")
+    print("Underground:\n", mine.underground.T)
+    print("Cumulative Sum:\n", mine.cumsum_mine.T)
+    print("Initial State:\n", mine.initial.T)
+
     # TODO: psuedocode of this section before implementation
+
+    # initial state of the mine
+    initial = mine.initial #[0, 0, 0]
+
+    # get all possible actions
+    valid_actions = Mine.actions(mine, mine.underground)
+    print("valid actions: ",valid_actions) #(0, 0, 0)
+    result = Mine.result(mine, initial, valid_actions)
+    print("result: ",result) #(1, 1, 1)
+
+    # get the cumulative sum per column within the bounds given by actions
+
+    # determine how far down to dig per column that doesn't become dangerous
+
+    # determine the actions required to get this tuple
+    # find_action_sequence(initial state all zeroes, )
 
     best_action_list = None
 
