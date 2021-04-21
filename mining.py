@@ -531,7 +531,7 @@ def find_action_sequence(s0, s1):
         # Loop through actions and add them to the sequence array as a 
         # properly formatted tuple.
         if s0.ndim == 2:
-            for a in zip(actions[0], actions[1]):
+            for a in zip(*actions):
                 sequence.append(a)
         else:
             for a in actions[0]:
@@ -552,15 +552,16 @@ def DEBUG_PRINTING(mine, state):
 
     Parameters
     ----------
-    state : A state to be debugged.
-        typically just use the initial state.
+    mine  : A mine object.
+    state : A state to be evaluated.
     '''
     print('-------------- DEBUG INFO -------------- ')
     print(f"Underground {mine.underground.shape}\n {mine.underground}")
     print(f"Cumulative Sum {mine.cumsum_mine.shape}\n {mine.cumsum_mine}")
     print(f"State {state.shape}:\n {state}")
     print("Payoff:\n", mine.payoff(state))
-    print("Actions:\n", mine.actions(state))
+    print("Possible Actions:\n", mine.actions(state))
+    print("Action Sequence from empty state:\n", find_action_sequence(np.zeros(state.shape), state))
     print("Is Dangerous?:\n", mine.is_dangerous(state))
 
 if __name__ == '__main__':
@@ -602,10 +603,10 @@ if __name__ == '__main__':
         ]
     ])
     some_3D_state = np.array([
-        [ 3, 2, 1, 2, 1],
-        [ 2, 2, 1, 1, 1],
+        [ 3, 2, 1, 0, 0],
+        [ 2, 2, 1, 0, 0],
         [ 1, 1, 1, 0, 0],
-        [ 1, 0, 0, 0, 0]        
+        [ 0, 0, 0, 0, 1]        
     ])
 
     underground = some_3D_underground
