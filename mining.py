@@ -358,7 +358,6 @@ class Mine(search.Problem):
         No loops needed in the implementation!        
         '''
         state = np.array(state)
-
         # Get the indexes of all non-zero columns in the state, these are 
         # columns that have been dug.
         c = np.nonzero(state)
@@ -413,7 +412,33 @@ class Mine(search.Problem):
 
  # ========================  Class Mine  ==================================
     
-    
+def get_best_child(mine, node):
+    '''
+    Returns the child node which has the largest payoff.
+
+    Parameters
+    ----------
+    mine : a Mine instance
+    node : a node whose children to check
+
+    Returns
+    -------
+    best_child_node
+        
+    '''
+    # List the nodes reachable in one step from this node. (All children nodes)
+    children = node.expand(mine) 
+
+    # Generate a list of the childrens payoff values
+    children_payoffs = [mine.payoff(child.state) for child in children]
+
+    # Find the index of the child whose payoff is the largest
+    best_child_index = np.argmax(children_payoffs)
+
+    # Use that above index to get the best child node
+    best_child_node = children[best_child_index]
+
+    return best_child_node
     
 def search_dp_dig_plan(mine):
     '''
@@ -432,7 +457,43 @@ def search_dp_dig_plan(mine):
     best_payoff, best_action_list, best_final_state
 
     '''
+    #### THOMAS PUT THIS HERE TO HELP YOU GET FAMILIAR WITH THE NODE STUFF ####
+    # Initialize Start node to mines initial state
+    startNode = search.Node(mine.initial)
+    print("Start: ", startNode) # Print startNode state
+
+    # Find the child node with the best payoff
+    bestChildNode = get_best_child(mine, startNode)
+    print("Best Child Node:", bestChildNode)
+    print("Best Child Payoff:", mine.payoff(bestChildNode.state))
+
+    # Loop through each child and print their information to verify the above stuff
+    for i, childNode in enumerate(startNode.expand(mine)):   
+        childPayoff = mine.payoff(childNode.state)
+        print(f"Child{i}: {childNode}, Payoff = {childPayoff}")
+
+        # # Below is an outline of what a Node object can do, though you aren't
+        # # obviously expected to use all of them to get things to work.
+
+        # # THESE ARE SOME VARIABLES YOU CAN ACCESS FROM A NODE OBJECT
+        # s = childNode.state        # State of the child
+        # p = childNode.parent       # Parent node of the child
+        # a = childNode.action       # Action taken to get to this node
+        # c = childNode.path_cost    # Total cost of path up to this node
+        # d = childNode.depth        # Depth in the tree of this node
+
+        # # THESE ARE SOME FUNCTIONS YOU CAN USE IF YOU NEED TO
+        # S = childNode.solution()   # Return the sequence of actions to go from the root state to this node state.
+        # P = childNode.path()       # Return a list of nodes forming the path from the root to this node.
+        # C = childNode.expand(mine) # List the nodes reachable in one step from this node.
+        
+        # You can print uncomment this if you want to know more about the childs state
+        # DEBUG_PRINTING(mine, childNode.state)
+
+    #### END HELP FROM THOMAS ####
+
     # TODO: REMOVE this is just for my visualisation
+
     cumulative_sum = mine.cumsum_mine # Just to show a cumulative sum
     transposed = mine.underground.T
     # print(f"Underground Size: X{mine.len_x}, Y{mine.len_y}, Z{mine.len_z}")
@@ -609,20 +670,20 @@ if __name__ == '__main__':
         [ 0, 0, 0, 0, 1]        
     ])
 
-    underground = some_3D_underground
-    state = some_3D_state
+    underground = some_2D_underground
+    state = some_2D_state
     
     # ## INSTANTIATE MINE ##
     # underground = np.random.rand(5, 3) # 3 columns, 5 rows
     m = Mine(underground, dig_tolerance=1)
-    DEBUG_PRINTING(m, state)
+    # DEBUG_PRINTING(m, state)
 
     # ## BEGIN SEARCHES ##
 
     # # Dynamic Programming search
-    # t0 = time.time()
-    # best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
-    # t1 = time.time()
+    t0 = time.time()
+    best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
+    t1 = time.time()
 
     # print ("DP solution -> ", best_final_state)
     # print ("DP Solver took ",t1-t0, ' seconds')
