@@ -220,10 +220,10 @@ class Mine(search.Problem):
 
         print('-------------- DEBUG INFO -------------- ')
         print("Underground", self.underground.shape, ":\n", self.underground)
-        # print("Initial State", state.shape, ":\n", state)
-        # print("Payoff:", self.payoff(state))
-        # print("Actions:", self.actions(state))
-        # print("Is Dangerous?:", self.is_dangerous(state))
+        print("Initial State", state.shape, ":\n", state)
+        print("Payoff:", self.payoff(state))
+        print("Actions:", self.actions(state))
+        print("Is Dangerous?:", self.is_dangerous(state))
 
     def surface_neigbhours(self, loc):
         '''
@@ -444,21 +444,20 @@ def search_dp_dig_plan(mine):
     # TODO: REMOVE this is just for my visualisation
     cumulative_sum = np.cumsum(mine.underground, axis=1) # Just to show a cumulative sum
     transposed = mine.underground.T
-    print(f"Underground Size: X{mine.len_x}, Y{mine.len_y}, Z{mine.len_z}")
-    print("Underground:\n", mine.underground.T)
-    print("Cumulative Sum:\n", mine.cumsum_mine.T)
-    print("Initial State:\n", mine.initial.T)
+    # print(f"Underground Size: X{mine.len_x}, Y{mine.len_y}, Z{mine.len_z}")
+    # print("Underground:\n", mine.underground.T)
+    # print("Cumulative Sum:\n", mine.cumsum_mine.T)
+    # print("Initial State:\n", mine.initial.T)
 
     # TODO: psuedocode of this section before implementation
 
-    # initial state of the mine
-    initial = mine.initial #[0, 0, 0]
-
     # get all possible actions
-    valid_actions = Mine.actions(mine, mine.underground)
-    print("valid actions: ",valid_actions) #(((0, 2),)
-    result = Mine.result(mine, initial, valid_actions)
-    print("result: ",result) #(1, 0, 1, 0, 0)
+    valid_actions = Mine.actions(mine, mine.initial)
+    #print("valid actions: ",valid_actions)
+    #result = Mine.result(mine, mine.initial, valid_actions)
+    #print("result: ",result)
+
+    #Mine.DEBUG_PRINTING(mine, mine.initial)
 
     # get the cumulative sum per column within the bounds given by actions
 
