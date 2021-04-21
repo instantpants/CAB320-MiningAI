@@ -188,6 +188,10 @@ def UndergroundTest(underground, state):
     print('Sequence:', sequence)
     print('Computation took {} seconds\n'.format(toc-tic))  
 
+    print('-------------- Other Stuff -------------- ')
+    actions = mine.actions(state)
+    print('Possible Actions:\n', actions)
+
 if __name__=='__main__':
     pass
     print('='*10 + " 2D UNDERGROUND TEST " + '='*10)

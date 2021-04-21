@@ -200,31 +200,6 @@ class Mine(search.Problem):
 
             self.initial = np.zeros((self.len_x, self.len_y,), dtype=int)
 
-    # REMOVE THIS BEFORE SUBMITTING
-    def DEBUG_PRINTING(self, state):
-        '''
-        Prints some mine debug info:
-
-        - Underground shape and contents
-        - State shape and contents
-        - Payoff for supplied state
-        - Actions for supplied state
-        - Whether the state is dangeous
-
-        Parameters
-        ----------
-        state : A state to be debugged.
-            typically just use the initial state.
-        '''
-        state = self.initial
-
-        print('-------------- DEBUG INFO -------------- ')
-        print("Underground", self.underground.shape, ":\n", self.underground)
-        print("Initial State", state.shape, ":\n", state)
-        print("Payoff:", self.payoff(state))
-        print("Actions:", self.actions(state))
-        print("Is Dangerous?:", self.is_dangerous(state))
-
     def surface_neigbhours(self, loc):
         '''
         Return the list of neighbours of loc
@@ -273,32 +248,36 @@ class Mine(search.Problem):
         -------
         a generator of valid actions
 
+        e.g.
+        For a state of (0, 1, 2, 1, 0) and a tolerance of 1. 
+        Return value would be ((0,), (4,))
         '''        
-        state = np.array(state)
-        shape = state.shape
-        actions = []
-
-        print(state, shape)
+        state = np.array(state) # Copy to np.array for indexing and other methods
+        actions = [] # List to contain valid actions for supplied state
 
         # Flatten the state to be used in a single loop this allows us to work 
         # with both 1D and 2D states in a single loop.
-        for i, val in enumerate(i for i in state.flat):
+        for i, v in enumerate(state.flat):
             # The value of the cell if it were dug (for neighbour comparisons)
-            next_val = val + 1
+            next_val = v + 1
 
             # Can't dig a cell if we're already at the bottom
             if next_val > self.len_z:
                 continue
-
-            # Get 1D or 2D index of cell 'i'
-            # 2D index = (i,)
-            # 3D index = (floor(i / self.len_x), i % self.len_x)
-            idx = (i,) if state.ndim == 1 else (i // shape[1], i % shape[1],) 
             
-            # Convert neighbour indexes to a tuple for indexing.
-            nidx = tuple(zip(*self.surface_neigbhours(idx)))
+            # Get column index as tuple for usage in neighbours
+            if state.ndim == 1:
+                idx = (i,) # (x,)
+            else:                
+                # Convert 1D flat index to 2D index
+                idx = (i // state.shape[1], i % state.shape[1],) # (x, y,)
+            
+            # Convert neighbour indexes to a zipped tuple for indexing.
+            neighbour_indices = tuple(zip(*self.surface_neigbhours(idx)))
+            neighbour_vals = state[neighbour_indices] # Neighbour values
+
             # If all neighbours are within tolerance, lets add the index to actions
-            if np.all(abs(next_val - state[nidx]) <= self.dig_tolerance):
+            if np.all(abs(next_val - neighbour_vals) <= self.dig_tolerance):
                 actions.append(idx)
     
         return tuple(actions)
@@ -340,8 +319,6 @@ class Mine(search.Problem):
             # level by level representation
             return '\n'.join('level {}\n'.format(z)
                    +str(self.underground[...,z]) for z in range(self.len_z))
-                    
-            #return self.underground[loc[0], loc[1],:]
           
     @staticmethod   
     def plot_state(state):
@@ -382,7 +359,7 @@ class Mine(search.Problem):
         '''
         state = np.array(state)
 
-        # Get the indexes of all non-zero values in the state, these are 
+        # Get the indexes of all non-zero columns in the state, these are 
         # columns that have been dug.
         c = np.nonzero(state)
 
@@ -393,9 +370,9 @@ class Mine(search.Problem):
         # Calculate the payoff by summing the cumulative sum at each index
         # defined above.
         if state.ndim == 2:
-            return sum(self.cumsum_mine[z, c[0], c[1]]) # z, x, y
+            return sum(self.cumsum_mine[z, c[0], c[1]]) # cumsum_mine[z, x, y]
         else:
-            return sum(self.cumsum_mine[c[0], z]) # x, z
+            return sum(self.cumsum_mine[c[0], z])       # cumsum_mine[x, z]
 
     def is_dangerous(self, state):
         '''
@@ -562,6 +539,29 @@ def find_action_sequence(s0, s1):
     
     return convert_to_tuple(sequence)
 
+# REMOVE THIS BEFORE SUBMITTING
+def DEBUG_PRINTING(mine, state):
+    '''
+    Prints some mine debug info:
+
+    - Underground shape and contents
+    - State shape and contents
+    - Payoff for supplied state
+    - Actions for supplied state
+    - Whether the state is dangeous
+
+    Parameters
+    ----------
+    state : A state to be debugged.
+        typically just use the initial state.
+    '''
+    print('-------------- DEBUG INFO -------------- ')
+    print(f"Underground {mine.underground.shape}\n {mine.underground}")
+    print(f"Cumulative Sum {mine.cumsum_mine.shape}\n {mine.cumsum_mine}")
+    print(f"State {state.shape}:\n {state}")
+    print("Payoff:\n", mine.payoff(state))
+    print("Actions:\n", mine.actions(state))
+    print("Is Dangerous?:\n", mine.is_dangerous(state))
 
 if __name__ == '__main__':
     import time
@@ -570,25 +570,66 @@ if __name__ == '__main__':
         GoogleDocs:     https://docs.google.com/document/d/1SZjn7aqxmaZgs2Ei4RpKSgsj8sX6Tu7364aL4TOCtQs/edit?usp=sharing
         GitHub Repo:    https://github.com/CelineLind/MiningAI/
     """
+    some_2D_underground = np.array([
+        [-0.814,  0.637, 1.824, -0.563],
+        [ 0.559, -0.234,-0.366,  0.074],
+        [ 0.175, -0.284,  0.026,-0.316],
+        [ 0.212,  0.088,  0.304, 0.604],
+        [-1.231,  1.558, -0.467,-0.371]
+    ])
+    some_2D_state = np.array([
+        0, 1, 2, 1, 0
+    ])
+    
+    some_3D_underground = np.array([
+        [   # Level 1 - Topsoil
+            [ 0.455,  0.579, -0.54 , -0.995, -0.771],
+            [ 0.049,  1.311, -0.061,  0.185, -1.959],
+            [ 2.38 , -1.404,  1.518, -0.856,  0.658],
+            [ 0.515, -0.236, -0.466, -1.241, -0.354]
+        ],
+        [   # Level 2
+            [ 0.801,  0.072, -2.183,  0.858, -1.504],
+            [-0.09 , -1.191, -1.083,  0.78 , -0.763],
+            [-1.815, -0.839,  0.457, -1.029,  0.915],
+            [ 0.708, -0.227,  0.874,  1.563, -2.284]
+        ],
+        [   # Level 3
+            [ -0.857,  0.309, -1.623,  0.364,  0.097],
+            [-0.876,  1.188, -0.16 ,  0.888, -0.546],
+            [-1.936, -3.055, -0.535, -1.561, -1.992],
+            [ 0.316,  0.97 ,  1.097,  0.234, -0.296]
+        ]
+    ])
+    some_3D_state = np.array([
+        [ 3, 2, 1, 2, 1],
+        [ 2, 2, 1, 1, 1],
+        [ 1, 1, 1, 0, 0],
+        [ 1, 0, 0, 0, 0]        
+    ])
 
+    underground = some_3D_underground
+    state = some_3D_state
+    
     # ## INSTANTIATE MINE ##
-    underground = np.random.rand(5, 3) # 3 columns, 5 rows
+    # underground = np.random.rand(5, 3) # 3 columns, 5 rows
     m = Mine(underground, dig_tolerance=1)
+    DEBUG_PRINTING(m, state)
 
     # ## BEGIN SEARCHES ##
 
-    # Dynamic Programming search
-    t0 = time.time()
-    best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
-    t1 = time.time()
-
-    print ("DP solution -> ", best_final_state)
-    print ("DP Solver took ",t1-t0, ' seconds')
-    
-    # Best Branch search
+    # # Dynamic Programming search
     # t0 = time.time()
-    best_payoff, best_action_list, best_final_state = search_bb_dig_plan(m)
-    t1 = time.time()
+    # best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
+    # t1 = time.time()
 
-    print ("BB solution -> ", best_final_state)
-    print ("BB Solver took ",t1-t0, ' seconds')
+    # print ("DP solution -> ", best_final_state)
+    # print ("DP Solver took ",t1-t0, ' seconds')
+    
+    # # Best Branch search
+    # # t0 = time.time()
+    # best_payoff, best_action_list, best_final_state = search_bb_dig_plan(m)
+    # t1 = time.time()
+
+    # print ("BB solution -> ", best_final_state)
+    # print ("BB Solver took ",t1-t0, ' seconds')
