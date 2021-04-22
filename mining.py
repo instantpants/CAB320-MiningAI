@@ -202,6 +202,7 @@ class Mine(search.Problem):
 
         self.initial = convert_to_tuple(self.initial)
 
+    @functools.lru_cache(maxsize=None)
     def surface_neigbhours(self, loc):
         '''
         Return the list of neighbours of loc
@@ -357,6 +358,7 @@ class Mine(search.Problem):
         #
         plt.show()
 
+    @functools.lru_cache(maxsize=None)
     def payoff(self, state):
         '''
         Compute and return the payoff for the given state.
@@ -372,6 +374,7 @@ class Mine(search.Problem):
         # Sum the cumsum_mine values and return
         return sum(self.cumsum_mine[coords])
 
+    @functools.lru_cache(maxsize=None)
     def is_dangerous(self, state):
         '''
         Return True if the given state breaches the dig_tolerance constraints.
@@ -462,6 +465,8 @@ def search_dp_dig_plan(mine):
     best_payoff, best_final_state = search_rec(initial_state)
 
     # Find action sequence for best state
+    # I couldn't figure out how to return the action sequence recursively so this
+    # is the best I can think of.
     best_action_list = find_action_sequence(initial_state, best_final_state)
 
     return best_payoff, best_action_list, best_final_state, search_rec.cache_info()

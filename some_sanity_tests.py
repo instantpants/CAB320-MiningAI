@@ -74,7 +74,7 @@ Here is the console output
 """
 import time
 import numpy as np
-from mining import Mine, search_dp_dig_plan, search_bb_dig_plan, find_action_sequence, TestDP
+from mining import Mine, search_dp_dig_plan, search_bb_dig_plan, find_action_sequence
 
 np.set_printoptions(3)
 
@@ -141,7 +141,7 @@ def UndergroundTest(underground):
 
     print('-------------- DP computations -------------- ')
     tic = time.time()
-    best_payoff, best_a_list, best_final_state, ci = TestDP(mine)
+    best_payoff, best_a_list, best_final_state, ci = search_dp_dig_plan(mine)
     toc = time.time() 
     print('DP Best payoff:',best_payoff)
     print('DP Best final state:', best_final_state)  
@@ -178,7 +178,7 @@ if __name__=='__main__':
     print('='*10 + " 2D UNDERGROUND TEST " + '='*10)
     UndergroundTest(some_2D_underground)
     
-    # print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
-    # UndergroundTest(some_3D_underground)
+    print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
+    UndergroundTest(some_3D_underground)
 
     
