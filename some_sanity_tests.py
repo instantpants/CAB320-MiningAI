@@ -134,14 +134,13 @@ some_3D_state = np.array([
         [ 1, 0, 0, 0, 0]        
     ])
 
-def UndergroundTest(underground, state):
+def UndergroundTest(underground):
     '''
     Test function
     
     Performs tests on
         - DP algorithm
         - BB algorithm
-        - Find Action Sequence
 
     Parameters
     ----------
@@ -179,25 +178,25 @@ def UndergroundTest(underground, state):
     print('BB Computation took {} seconds\n'.format(toc-tic))   
 
     
-    print('-------------- Find Action Sequence -------------- ')
-    initial_state = np.zeros(state.shape)
-    tic = time.time()
-    sequence = find_action_sequence(initial_state, state)
-    toc = time.time()
-    print('s0:\n', initial_state, '\ns1:\n', state)
-    print('Sequence:', sequence)
-    print('Computation took {} seconds\n'.format(toc-tic))  
+    # print('-------------- Find Action Sequence -------------- ')
+    # initial_state = np.zeros(state.shape)
+    # tic = time.time()
+    # sequence = find_action_sequence(initial_state, state)
+    # toc = time.time()
+    # print('s0:\n', initial_state, '\ns1:\n', state)
+    # print('Sequence:', sequence)
+    # print('Computation took {} seconds\n'.format(toc-tic))  
 
-    print('-------------- Other Stuff -------------- ')
-    actions = mine.actions(state)
-    print('Possible Actions:\n', actions)
+    # print('-------------- Other Stuff -------------- ')
+    # actions = mine.actions(state)
+    # print('Possible Actions:\n', actions)
 
 if __name__=='__main__':
     pass
     print('='*10 + " 2D UNDERGROUND TEST " + '='*10)
-    UndergroundTest(some_2D_underground, some_2D_state)
+    UndergroundTest(some_2D_underground)
     
     print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
-    UndergroundTest(some_3D_underground, some_3D_state)
+    UndergroundTest(some_3D_underground)
 
     
