@@ -365,34 +365,12 @@ class Mine(search.Problem):
         No loops needed in the implementation!        
         '''
         state = np.array(state)
-<<<<<<< HEAD
         columns = np.nonzero(state) # Get the indexes of all dug columns (X or XY)
         depth = state[columns] - 1  # Get depth vals - 1 as arrays are 0 terminated
         coords = columns + (depth,) # Add the depth dimension so indexing is easy
 
         # Sum the cumsum_mine values and return
         return sum(self.cumsum_mine[coords])
-=======
-        #print(f"UG {self.underground.shape}:\n {self.underground}\n")
-        #print(f"CS {self.cumsum_mine.shape}:\n {self.cumsum_mine}\n")
-        #print(f"State {state.shape}:\n {state}")
-        
-        # Get the indexes of all non-zero columns in the state, these are 
-        # columns that have been dug.
-        c = np.nonzero(state)
-
-        # Make a copy of the non-zero values and take 1 from each of them 
-        # as arrays are 0 terminated. (This is to access the correct depth)
-        depth = state[c] - 1
-
-        # Calculate the payoff by summing the cumulative sum at each index
-        # defined above.
-        if state.ndim == 2:
-            print(self.cumsum_mine[c[0], c[1], depth])
-            return sum(self.cumsum_mine[c[0], c[1], depth]) # cumsum_mine[x, y, z]
-        else:
-            return sum(self.cumsum_mine[c[0], depth])       # cumsum_mine[x, z]
->>>>>>> 3129dea89416cf4a5fcfbdba2fccc971743d2852
 
     def is_dangerous(self, state):
         '''
@@ -432,36 +410,6 @@ class Mine(search.Problem):
         
 
  # ========================  Class Mine  ==================================
-
-@functools.lru_cache(maxsize = 256)
-def get_best_child(mine, node):
-    '''
-    Returns the child node which has the largest payoff.
-
-    Parameters
-    ----------
-    mine : a Mine instance
-
-    node : a Node whose children to check
-
-    Returns
-    -------
-    best_child_node
-        
-    '''
-    # Get all children states
-    children = node.expand(mine)
-
-    # Generate a list of the childrens payoff values
-    children_payoffs = [mine.payoff(child.state) for child in children]
-
-    # Find the index of the child whose payoff is the largest
-    best_child_index = np.argmax(children_payoffs)
-
-    # Use that above index to get the best child node
-    best_child_node = children[best_child_index]
-
-    return best_child_node
     
 def search_dp_dig_plan(mine):
     '''
@@ -746,26 +694,12 @@ if __name__ == '__main__':
         [ 1, 1, 1, 0],  
     ])
 
-<<<<<<< HEAD
-=======
-    # 3D
-    #underground = some_3D_underground
-    #state = some_3D_state
-
-    #2D
->>>>>>> 3129dea89416cf4a5fcfbdba2fccc971743d2852
     underground = some_2D_underground
     state = some_2D_state
     
     # ## INSTANTIATE MINE ##
     # underground = np.random.rand(5, 3) # 3 columns, 5 rows
     m = Mine(underground, dig_tolerance=1)
-
-
-    actions = m.actions(tuple(state))
-
-    print([a for a in actions])
-
     # DEBUG_PRINTING(m, state)
 
     # ## BEGIN SEARCHES ##
