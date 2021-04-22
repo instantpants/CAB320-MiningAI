@@ -533,6 +533,7 @@ def search_dp_dig_plan(mine):
     return best_payoff, best_action_list, best_final_state
 
 
+
     
     
 def search_bb_dig_plan(mine):
@@ -562,11 +563,46 @@ def search_bb_dig_plan(mine):
     # if b(s1) <= best_payoff
     # then remove s1 from frontier and move to s2
 
+    # Possible PseudoCode???
+    
+    # Data: Input Cost matrix M [][]
+    # Result: Optimal mine state?
+    # Function MinCost(M[][])
+    # while true do
+    #     E = LeastCost();
+    #     if E is a leaf node then
+    #         print();
+    #         return;
+    #     end
+    #     for each child S of E do
+    #         Add(S);
+    #         S --> parent = E;
+    #     end
+    # end
+
+    # MinCost() = list of active nodes
+    # LeastCost() = minimum cost of active node at each level of tree. After finding node with min cost, remove node from list of active and return it
+    # Add() = calculates cost of particular node and adds it to list of active nodes
+
+
+
+
     # TODO: psuedocode of this section before implementation
+
+    # Initialize Start node to mines initial state
+    startNode = search.Node(mine.initial)
+    print("Start: ", startNode) # Print startNode state
+
+    #Initialise best_payoff
+    best_payoff = mine.payoff(mine.initial)
+    print ("BB Best payoff for start node =", best_payoff)
+
+
+
 
     best_action_list = None
 
-    best_payoff = None
+    
 
     best_final_state = None
 
@@ -775,7 +811,7 @@ if __name__ == '__main__':
     print ("Test DP Solver took ",t1-t0, ' seconds')
 
     # t0 = time.time()
-    # best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
+    #best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
     # t1 = time.time()
 
     # print ("DP solution -> ", best_final_state)
@@ -788,3 +824,6 @@ if __name__ == '__main__':
 
     # print ("BB solution -> ", best_final_state)
     # print ("BB Solver took ",t1-t0, ' seconds')
+
+    search_bb_dig_plan(m)
+
