@@ -365,12 +365,34 @@ class Mine(search.Problem):
         No loops needed in the implementation!        
         '''
         state = np.array(state)
+<<<<<<< HEAD
         columns = np.nonzero(state) # Get the indexes of all dug columns (X or XY)
         depth = state[columns] - 1  # Get depth vals - 1 as arrays are 0 terminated
         coords = columns + (depth,) # Add the depth dimension so indexing is easy
 
         # Sum the cumsum_mine values and return
         return sum(self.cumsum_mine[coords])
+=======
+        #print(f"UG {self.underground.shape}:\n {self.underground}\n")
+        #print(f"CS {self.cumsum_mine.shape}:\n {self.cumsum_mine}\n")
+        #print(f"State {state.shape}:\n {state}")
+        
+        # Get the indexes of all non-zero columns in the state, these are 
+        # columns that have been dug.
+        c = np.nonzero(state)
+
+        # Make a copy of the non-zero values and take 1 from each of them 
+        # as arrays are 0 terminated. (This is to access the correct depth)
+        depth = state[c] - 1
+
+        # Calculate the payoff by summing the cumulative sum at each index
+        # defined above.
+        if state.ndim == 2:
+            print(self.cumsum_mine[c[0], c[1], depth])
+            return sum(self.cumsum_mine[c[0], c[1], depth]) # cumsum_mine[x, y, z]
+        else:
+            return sum(self.cumsum_mine[c[0], depth])       # cumsum_mine[x, z]
+>>>>>>> 3129dea89416cf4a5fcfbdba2fccc971743d2852
 
     def is_dangerous(self, state):
         '''
@@ -723,6 +745,14 @@ if __name__ == '__main__':
         [ 1, 1, 1, 0],  
     ])
 
+<<<<<<< HEAD
+=======
+    # 3D
+    #underground = some_3D_underground
+    #state = some_3D_state
+
+    #2D
+>>>>>>> 3129dea89416cf4a5fcfbdba2fccc971743d2852
     underground = some_2D_underground
     state = some_2D_state
     
@@ -750,12 +780,12 @@ if __name__ == '__main__':
     print ("Test DP cache -> ", ci)
     print ("Test DP Solver took ",t1-t0, ' seconds')
 
-    # t0 = time.time()
-    #best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
-    # t1 = time.time()
+    t0 = time.time()
+    best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
+    t1 = time.time()
 
-    # print ("DP solution -> ", best_final_state)
-    # print ("DP Solver took ",t1-t0, ' seconds')
+    print ("DP solution -> ", best_final_state)
+    print ("DP Solver took ",t1-t0, ' seconds')
     
     # # Best Branch search
     # # t0 = time.time()
@@ -765,5 +795,5 @@ if __name__ == '__main__':
     # print ("BB solution -> ", best_final_state)
     # print ("BB Solver took ",t1-t0, ' seconds')
 
-    search_bb_dig_plan(m)
+    #search_bb_dig_plan(m)
 
