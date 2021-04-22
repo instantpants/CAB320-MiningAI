@@ -483,8 +483,9 @@ def search_dp_dig_plan(mine):
     @functools.lru_cache(maxsize=None)
     def search_rec(state):
         '''
-        Recursive function that will discover all possible states
-        and add them to a set for later
+        Memoized recursive function that will discover all possible states
+        and return the best values found, will cache already checked
+        states so no re-calculating for them is necessary.
         '''
         # This state has now been explored, so lets remember it
         # explored.add(state)
