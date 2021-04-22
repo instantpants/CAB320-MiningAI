@@ -772,7 +772,7 @@ if __name__ == '__main__':
 
     # Dynamic Programming search
     t0 = time.time()
-    best_payoff, best_action_list, best_final_state, ci = TestDP(m)
+    best_payoff, best_action_list, best_final_state, ci = search_dp_dig_plan(m)
     t1 = time.time()
 
     print ("Test DP solution -> ", best_final_state)
@@ -780,13 +780,6 @@ if __name__ == '__main__':
     print ("Test DP action -> ", best_action_list)
     print ("Test DP cache -> ", ci)
     print ("Test DP Solver took ",t1-t0, ' seconds')
-
-    t0 = time.time()
-    best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
-    t1 = time.time()
-
-    print ("DP solution -> ", best_final_state)
-    print ("DP Solver took ",t1-t0, ' seconds')
     
     # # Best Branch search
     # # t0 = time.time()
