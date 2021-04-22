@@ -361,9 +361,10 @@ class Mine(search.Problem):
         No loops needed in the implementation!        
         '''
         state = np.array(state)
-        print(f"UG {self.underground.shape}:\n {self.underground}\n")
-        print(f"CS {self.cumsum_mine.shape}:\n {self.cumsum_mine}\n")
-        print(f"State {state.shape}:\n {state}")
+        #print(f"UG {self.underground.shape}:\n {self.underground}\n")
+        #print(f"CS {self.cumsum_mine.shape}:\n {self.cumsum_mine}\n")
+        #print(f"State {state.shape}:\n {state}")
+        
         # Get the indexes of all non-zero columns in the state, these are 
         # columns that have been dug.
         c = np.nonzero(state)
@@ -501,16 +502,19 @@ def search_dp_dig_plan(mine):
 
     #### END HELP FROM THOMAS ####
 
-    # TODO: REMOVE this is just for my visualisation
+    # if payoff is negative, don't dig
+    # compare the dig tolerance from the surface to the next one, if it wasn't dug, and see if you can dig it
+    # compare to the next columns
+    # check the total payoff
+    # ... will rethink this afternoon.
+    
 
-    cumulative_sum = mine.cumsum_mine # Just to show a cumulative sum
-    transposed = mine.underground.T
+    #cumulative_sum = mine.cumsum_mine # Just to show a cumulative sum
+    #transposed = mine.underground.T
     # print(f"Underground Size: X{mine.len_x}, Y{mine.len_y}, Z{mine.len_z}")
     # print("Underground:\n", mine.underground.T)
     # print("Cumulative Sum:\n", mine.cumsum_mine.T)
     # print("Initial State:\n", mine.initial.T)
-
-    # TODO: psuedocode of this section before implementation
 
     # get all possible actions
     valid_actions = mine.actions(mine.initial)
@@ -805,8 +809,13 @@ if __name__ == '__main__':
         [ 1, 1, 1, 0],  
     ])
 
-    underground = some_3D_underground
-    state = some_3D_state
+    # 3D
+    #underground = some_3D_underground
+    #state = some_3D_state
+
+    #2D
+    underground = some_2D_underground
+    state = some_2D_state
     
     # ## INSTANTIATE MINE ##
     # underground = np.random.rand(5, 3) # 3 columns, 5 rows
@@ -826,12 +835,12 @@ if __name__ == '__main__':
     # print ("Test DP action -> ", best_action_list)
     # print ("Test DP Solver took ",t1-t0, ' seconds')
 
-    # t0 = time.time()
-    #best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
-    # t1 = time.time()
+    t0 = time.time()
+    best_payoff, best_action_list, best_final_state = search_dp_dig_plan(m)
+    t1 = time.time()
 
-    # print ("DP solution -> ", best_final_state)
-    # print ("DP Solver took ",t1-t0, ' seconds')
+    print ("DP solution -> ", best_final_state)
+    print ("DP Solver took ",t1-t0, ' seconds')
     
     # # Best Branch search
     # # t0 = time.time()
@@ -841,5 +850,5 @@ if __name__ == '__main__':
     # print ("BB solution -> ", best_final_state)
     # print ("BB Solver took ",t1-t0, ' seconds')
 
-    search_bb_dig_plan(m)
+    #search_bb_dig_plan(m)
 
