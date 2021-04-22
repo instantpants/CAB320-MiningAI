@@ -56,7 +56,7 @@ import search
 def my_team():
     '''
     Return list of the team members of this assignment submission as a list
-    of triplet of t he form (student_number, first_name, last_name)
+    of triplet of the form (student_number, first_name, last_name)
     '''
     return [
         (10582835, 'Thomas', 'Fabian'),
@@ -546,6 +546,17 @@ def search_bb_dig_plan(mine):
     best_payoff, best_action_list, best_final_state
 
     '''
+
+    # Branch and Bound Steps
+    # Assign an upper bound b (initial bound = 0)
+    # to calculate bound, ignore slope constraint.
+    # work through each column to find the ideal cumsum per column (ideal dig depth)
+    # for each following state, bound = best_payoff
+    # need to compare and reassign (if necessary) best_payoff for each state
+    # frontier = possible next states from current state s0.
+    # if b(s1) <= best_payoff
+    # then remove s1 from frontier and move to s2
+
     # TODO: psuedocode of this section before implementation
 
     best_action_list = None
