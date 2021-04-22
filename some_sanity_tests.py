@@ -141,11 +141,12 @@ def UndergroundTest(underground):
 
     print('-------------- DP computations -------------- ')
     tic = time.time()
-    best_payoff, best_a_list, best_final_state = TestDP(mine)
+    best_payoff, best_a_list, best_final_state, ci = TestDP(mine)
     toc = time.time() 
     print('DP Best payoff:',best_payoff)
     print('DP Best final state:', best_final_state)  
     print('DP action list:', best_a_list)
+    print('DP cache info:', ci)
     print('DP Computation took {} seconds\n'.format(toc-tic))   
 
     
@@ -177,7 +178,7 @@ if __name__=='__main__':
     print('='*10 + " 2D UNDERGROUND TEST " + '='*10)
     UndergroundTest(some_2D_underground)
     
-    print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
-    UndergroundTest(some_3D_underground)
+    # print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
+    # UndergroundTest(some_3D_underground)
 
     
