@@ -438,9 +438,6 @@ def search_dp_dig_plan(mine):
         and return the best values found, will cache already checked
         states so no re-calculating for them is necessary.
         '''
-        # This state has now been explored, so lets remember it
-        # explored.add(state)
-
         # Set up variables for this state
         best_payoff = mine.payoff(state)
         best_state = state
