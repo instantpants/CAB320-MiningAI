@@ -431,7 +431,7 @@ def search_dp_dig_plan(mine):
     best_payoff, best_action_list, best_final_state
 
     '''
-    @functools.lru_cache(maxsize=None)
+    @functools.lru_cache(maxsize=None) # This line will 'memoize' every call to function with some state
     def search_rec(state):
         '''
         Memoized recursive function that will discover all possible states
