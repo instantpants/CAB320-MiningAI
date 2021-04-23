@@ -259,20 +259,24 @@ class Mine(search.Problem):
         state = np.array(state) # Copy to np.array for indexing and other methods
         actions = set() # List to contain valid actions for supplied state
 
+        # Flatten state so we can iterate both 2D and 3D states
         for x, z in enumerate(state.flat):
+            # Get dimensional coordinate
             if state.ndim == 2:
                 coord = (x // self.len_x, x % self.len_x)
             else:
                 coord = (x,)
 
-            next_z = z + 1
+            next_z = z + 1 # Next dug value at this column
 
-            if next_z > self.len_z:
+            if next_z > self.len_z: # If next_z is deeper than allowed, skip it
                 continue
 
+            # Get neighbouring cells and values
             neighbours = self.surface_neigbhours(coord)
             neighbour_vals = [state[n] for n in neighbours]
 
+            # If all neighbour values adhere to slope constraint, add the coord to actions
             if np.all(abs(next_z - neighbour_vals) <= self.dig_tolerance):
                 actions.add(coord)
         
