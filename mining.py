@@ -274,38 +274,8 @@ class Mine(search.Problem):
             neighbour_vals = [state[n] for n in neighbours]
 
             if np.all(abs(next_z - neighbour_vals) <= self.dig_tolerance):
-                actions.add(coord)           
-
-        return tuple(actions)
-
-        if state.ndim == 1: # 2D Implementation
-            for x, z in enumerate(state):
-                coord = (x,)
-                next_val = z + 1
-
-                if next_val > self.len_z:
-                    continue
-
-                neighbours = self.surface_neigbhours(coord)
-                neighbour_vals = [state[n] for n in neighbours]
-
-                if np.all(abs(next_val - neighbour_vals) <= self.dig_tolerance):
-                    actions.add(coord)
-        else: # 3D Implementation
-            for x, r in enumerate(state):
-                for y, z in enumerate(r): 
-                    coord = (x, y,)
-                    next_val = z + 1
-
-                    if next_val > self.len_z:
-                        continue
-
-                    neighbours = self.surface_neigbhours(coord)
-                    neighbour_vals = [state[n] for n in neighbours]
-
-                    if np.all(abs(next_val - neighbour_vals) <= self.dig_tolerance):
-                        actions.add(coord)
-
+                actions.add(coord)
+        
         return tuple(actions)
   
     @functools.lru_cache(maxsize=None)
