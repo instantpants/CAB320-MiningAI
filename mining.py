@@ -259,6 +259,25 @@ class Mine(search.Problem):
         state = np.array(state) # Copy to np.array for indexing and other methods
         actions = set() # List to contain valid actions for supplied state
 
+        for x, z in enumerate(state.flat):
+            if state.ndim == 2:
+                coord = (x // self.len_x, x % self.len_x)
+            else:
+                coord = (x,)
+
+            next_z = z + 1
+
+            if next_z > self.len_z:
+                continue
+
+            neighbours = self.surface_neigbhours(coord)
+            neighbour_vals = [state[n] for n in neighbours]
+
+            if np.all(abs(next_z - neighbour_vals) <= self.dig_tolerance):
+                actions.add(coord)           
+
+        return tuple(actions)
+
         if state.ndim == 1: # 2D Implementation
             for x, z in enumerate(state):
                 coord = (x,)
@@ -553,18 +572,18 @@ def search_bb_dig_plan(mine):
         best_payoff = mine.payoff(state)
 
     # Iterate children
-    for action in mine.actions(state):
-        next_state = mine.result(state, action)
+        for action in mine.actions(state):
+            next_state = mine.result(state, action)
 
-        # Check recursively for the best payoff in this tree (breadth first search)
-            #To be implemented
+            # Check recursively for the best payoff in this tree (breadth first search)
+                #To be implemented
 
-        # If the tree result above is better than what we have now, store it
+            # If the tree result above is better than what we have now, store it
             if check_payoff > best_payoff:
                 best_state = check_state
                 best_payoff = check_payoff
 
-        # Return best state from this branch
+            # Return best state from this branch
         return best_payoff, best_state
 
     # Begin First Iteration
