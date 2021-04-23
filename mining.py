@@ -532,48 +532,46 @@ def search_bb_dig_plan(mine):
     # if b(s1) <= best_payoff
     # then remove s1 from frontier and move to s2
 
-    # Possible PseudoCode???
-    
-    # Data: Input Cost matrix M [][]
-    # Result: Optimal mine state?
-    # Function MinCost(M[][])
-    # while true do
-    #     E = LeastCost();
-    #     if E is a leaf node then
-    #         print();
-    #         return;
-    #     end
-    #     for each child S of E do
-    #         Add(S);
-    #         S --> parent = E;
-    #     end
-    # end
-
-    # MinCost() = list of active nodes
-    # LeastCost() = minimum cost of active node at each level of tree. After finding node with min cost, remove node from list of active and return it
-    # Add() = calculates cost of particular node and adds it to list of active nodes
-
-
-
-
     # TODO: psuedocode of this section before implementation
 
-    # Initialize Start node to mines initial state
-    startNode = search.Node(mine.initial)
-    print("Start: ", startNode) # Print startNode state
+   
 
-    #Initialise best_payoff
-    best_payoff = mine.payoff(mine.initial)
-    print ("BB Best payoff for start node =", best_payoff)
+    '''
+    Set frontier to be states(s) accessible from starting state(s0)
+    node to be explored = starting state
+    determine payoff value for states(s)
+    determine which state has highest payoff value
+    for each a
+    set that state to be the new node to be explored
+    recursively run algorithm untill we reach an end state
+    that state should = best_final_state
 
+    '''
+    def bb_search_rec(state):
+        # set up variables for this state
+        best_state = state
+        best_payoff = mine.payoff(state)
 
+    # Iterate children
+    for action in mine.actions(state):
+        next_state = mine.result(state, action)
 
+        # Check recursively for the best payoff in this tree (breadth first search)
+            #To be implemented
 
-    best_action_list = None
+        # If the tree result above is better than what we have now, store it
+            if check_payoff > best_payoff:
+                best_state = check_state
+                best_payoff = check_payoff
 
-    
+        # Return best state from this branch
+        return best_payoff, best_state
 
-    best_final_state = None
+    # Begin First Iteration
+    initial_state = mine.initial
+    best_payoff, best_final_state = bb_search_rec(initial_state)
+
+    best_action_list = find_action_sequence(initial_state, best_final_state)  
 
     return best_payoff, best_action_list, best_final_state
 
