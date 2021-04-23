@@ -260,12 +260,12 @@ class Mine(search.Problem):
         actions = set() # List to contain valid actions for supplied state
 
         # Flatten state so we can iterate both 2D and 3D states
-        for x, z in enumerate(state.flat):
+        for i, z in enumerate(state.flat):
             # Get dimensional coordinate
             if state.ndim == 2:
-                coord = (x // self.len_x, x % self.len_x)
+                coord = (i // self.len_y, i % self.len_y)
             else:
-                coord = (x,)
+                coord = (i,)
 
             next_z = z + 1 # Next dug value at this column
 

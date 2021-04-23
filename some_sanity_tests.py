@@ -150,14 +150,14 @@ def UndergroundTest(underground):
     print('DP Computation took {} seconds\n'.format(toc-tic))   
 
     
-    print('-------------- BB computations -------------- ')
-    tic = time.time()
-    best_payoff, best_a_list, best_final_state = search_bb_dig_plan(mine)
-    toc = time.time() 
-    print('BB Best payoff:',best_payoff)
-    print('BB Best final state:', best_final_state)      
-    print('BB action list:', best_a_list)
-    print('BB Computation took {} seconds\n'.format(toc-tic))   
+    # print('-------------- BB computations -------------- ')
+    # tic = time.time()
+    # best_payoff, best_a_list, best_final_state = search_bb_dig_plan(mine)
+    # toc = time.time() 
+    # print('BB Best payoff:',best_payoff)
+    # print('BB Best final state:', best_final_state)      
+    # print('BB action list:', best_a_list)
+    # print('BB Computation took {} seconds\n'.format(toc-tic))   
 
     
     # print('-------------- Find Action Sequence -------------- ')
