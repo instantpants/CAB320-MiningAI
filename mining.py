@@ -571,12 +571,15 @@ def search_bb_dig_plan(mine):
         best_state = state
         best_payoff = mine.payoff(state)
 
-    # Iterate children
+        # Iterate children
         for action in mine.actions(state):
+            #print("action: ",action)
             next_state = mine.result(state, action)
+            #print("next_state: ",next_state)
 
             # Check recursively for the best payoff in this tree (breadth first search)
                 #To be implemented
+                #check_payoff, check_state = bb_search_rec(next_state) 
 
             # If the tree result above is better than what we have now, store it
             if check_payoff > best_payoff:
@@ -584,7 +587,7 @@ def search_bb_dig_plan(mine):
                 best_payoff = check_payoff
 
             # Return best state from this branch
-        return best_payoff, best_state
+            return best_payoff, best_state
 
     # Begin First Iteration
     initial_state = mine.initial
@@ -728,19 +731,19 @@ if __name__ == '__main__':
     best_payoff, best_action_list, best_final_state, ci = search_dp_dig_plan(m)
     t1 = time.time()
 
-    print ("Test DP solution -> ", best_final_state)
-    print ("Test DP payoff -> ", best_payoff)
-    print ("Test DP action -> ", best_action_list)
-    print ("Test DP cache -> ", ci)
-    print ("Test DP Solver took ",t1-t0, ' seconds')
+    # print ("Test DP solution -> ", best_final_state)
+    # print ("Test DP payoff -> ", best_payoff)
+    # print ("Test DP action -> ", best_action_list)
+    # print ("Test DP cache -> ", ci)
+    # print ("Test DP Solver took ",t1-t0, ' seconds')
     
     # # Best Branch search
-    # # t0 = time.time()
-    # best_payoff, best_action_list, best_final_state = search_bb_dig_plan(m)
-    # t1 = time.time()
+    t0 = time.time()
+    best_payoff, best_action_list, best_final_state = search_bb_dig_plan(m)
+    t1 = time.time()
 
-    # print ("BB solution -> ", best_final_state)
-    # print ("BB Solver took ",t1-t0, ' seconds')
+    print ("BB solution -> ", best_final_state)
+    print ("BB Solver took ",t1-t0, ' seconds')
 
     #search_bb_dig_plan(m)
 
