@@ -446,7 +446,7 @@ def search_dp_dig_plan(mine):
         for action in mine.actions(state):
             next_state = mine.result(state, action)
 
-            # Check recursively for the best payoff in this tree
+            # Check recursively for the best payoff in this tree (depth first search)
             check_payoff, check_state = search_rec(next_state)
 
             # If the tree result above is better than what we have now, store it
