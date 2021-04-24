@@ -458,11 +458,10 @@ def search_dp_dig_plan(mine):
     best_action_list = find_action_sequence(initial_state, best_final_state)
 
     return best_payoff, best_action_list, best_final_state, search_rec.cache_info()
-
+        
 def TestBB(mine):
     # Initialize local variables
     heap = []
-    visited = set()
     best_payoff = 0
     best_final_state = mine.initial
     best_payoff = mine.payoff(best_final_state)
@@ -470,7 +469,6 @@ def TestBB(mine):
 
     @functools.lru_cache(maxsize=None)
     def expand(state):
-        nonlocal visited, heap
         array_state = np.array(state) # For indexing and other methods
         for i, z in enumerate(array_state.flat):
             if z + 1 > mine.len_z: # If next_z is deeper than allowed, skip it
@@ -479,14 +477,11 @@ def TestBB(mine):
             # Get action by dimension
             action = (i,) if array_state.ndim == 1 else (i // mine.len_y, i % mine.len_y)
             node = mine.result(state, action)
-
-            if node in visited:  
-                continue 
-            
-            visited.add(node)
             cost = mine.payoff(node)
+            
             if cost >= best_payoff:
                 heapq.heappush(heap, (cost, node))
+                explored.append(node)
                 
 
     # Begin recursive search
@@ -497,8 +492,7 @@ def TestBB(mine):
                 best_final_state = node
                 best_payoff = cost
             expand(node)
-                
-
+        
     best_action_list = find_action_sequence(mine.initial, best_final_state)
 
     return best_payoff, best_action_list, best_final_state, expand.cache_info()
