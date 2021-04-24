@@ -486,6 +486,7 @@ def search_bb_dig_plan(mine):
         max_cumsum = np.zeros(np.shape(array_state))
 
         for i, z in enumerate(array_state.flat):
+            z = z if z < mine.len_z else z - 1
             if array_state.ndim == 2:
                 x = i // mine.len_y
                 y = i % mine.len_y
