@@ -46,9 +46,12 @@ import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 import itertools
-import heapq
+
 import functools # @lru_cache(maxsize=32)
+
 from numbers import Number
+from heapq import *
+
 import search
 
 def my_team():
@@ -184,20 +187,15 @@ class Mine(search.Problem):
             self.len_x = np.size(underground, axis=0)
             self.len_y = 0 # we're 2D mine atm so we won't have a y axis
             self.len_z = np.size(underground, axis=1)
-
-            self.cumsum_mine = np.cumsum(underground, axis=1) # use Z axis
-
             self.initial = np.zeros((self.len_x,), dtype=int)
         else:
             # 3D Mine Setup
             self.len_x = np.size(underground, axis=0)
             self.len_y = np.size(underground, axis=1)
             self.len_z = np.size(underground, axis=2)
-
-            self.cumsum_mine = np.cumsum(underground, axis=2) # use Z axis 
-
             self.initial = np.zeros((self.len_x, self.len_y,), dtype=int)
 
+        self.cumsum_mine = np.cumsum(underground, axis=-1) # use Z axis 
         self.initial = convert_to_tuple(self.initial)
 
     @functools.lru_cache(maxsize=None)
@@ -458,80 +456,7 @@ def search_dp_dig_plan(mine):
     best_action_list = find_action_sequence(initial_state, best_final_state)
 
     return best_payoff, best_action_list, best_final_state, search_rec.cache_info()
-        
-def TestBB(mine):
-    # Initialize local variables
-    heap = []
-    best_payoff = 0
-    best_final_state = mine.initial
-    best_payoff = mine.payoff(best_final_state)
-    heapq.heappush( heap, (best_payoff, best_final_state))
 
-    @functools.lru_cache(maxsize=None)
-    def expand(state):
-        array_state = np.array(state) # For indexing and other methods
-        for i, z in enumerate(array_state.flat):
-            if z + 1 > mine.len_z: # If next_z is deeper than allowed, skip it
-                continue
-            
-            # Get action by dimension
-            action = (i,) if array_state.ndim == 1 else (i // mine.len_y, i % mine.len_y)
-            node = mine.result(state, action)
-            cost = mine.payoff(node)
-            
-            if cost >= best_payoff:
-                heapq.heappush(heap, (cost, node))
-                explored.append(node)
-                
-
-    # Begin recursive search
-    while(len(heap) > 0):
-        cost, node = heapq.heappop(heap)
-        if cost >= best_payoff:
-            if not mine.is_dangerous(node):
-                best_final_state = node
-                best_payoff = cost
-            expand(node)
-        
-    best_action_list = find_action_sequence(mine.initial, best_final_state)
-
-    return best_payoff, best_action_list, best_final_state, expand.cache_info()
-    
-
-    #### THOMAS PUT THIS HERE TO HELP YOU GET FAMILIAR WITH THE NODE STUFF ####
-
-    # # Initialize Start node to mines initial state
-    # startNode = search.Node(mine.initial)
-    # print("Start: ", startNode) # Print startNode state
-
-    # # Find the child node with the best payoff
-    # bestChildNode = get_best_child(mine, startNode)
-    # print(f"Best Child Node: {bestChildNode}, Payoff = {mine.payoff(bestChildNode.state)}")
-
-    # # Loop through each child and print their information to verify the above stuff
-    # for i, childNode in enumerate(startNode.expand(mine)):   
-    #     childPayoff = mine.payoff(childNode.state)
-    #     print(f"Child{i}: {childNode}, Payoff = {childPayoff}")
-
-        # # Below is an outline of what a Node object can do, though you aren't
-        # # obviously expected to use all of them to get things to work.
-
-        # # THESE ARE SOME VARIABLES YOU CAN ACCESS FROM A NODE OBJECT
-        # s = childNode.state        # State of the child
-        # p = childNode.parent       # Parent node of the child
-        # a = childNode.action       # Action taken to get to this node
-        # c = childNode.path_cost    # Total cost of path up to this node
-        # d = childNode.depth        # Depth in the tree of this node
-
-        # # THESE ARE SOME FUNCTIONS YOU CAN USE IF YOU NEED TO
-        # S = childNode.solution()   # Return the sequence of actions to go from the root state to this node state.
-        # P = childNode.path()       # Return a list of nodes forming the path from the root to this node.
-        # C = childNode.expand(mine) # List the nodes reachable in one step from this node.
-        
-        # You can print uncomment this if you want to know more about the childs state
-        # DEBUG_PRINTING(mine, childNode.state)
-
-    #### END HELP FROM THOMAS ####
 
 def search_bb_dig_plan(mine):
     '''
@@ -549,62 +474,54 @@ def search_bb_dig_plan(mine):
     best_payoff, best_action_list, best_final_state
 
     '''
+    root = search.Node(mine.initial)
+    frontier = [root] # search.PriorityQueue(order='max', f=lambda n: b(n.state))
+    best_payoff = float('-inf')
+    best_node = root
 
-    # Branch and Bound Steps
-    # Assign an upper bound b (initial bound = 0)
-    # to calculate bound, ignore slope constraint.
-    # work through each column to find the ideal cumsum per column (ideal dig depth)
-    # for each following state, bound = best_payoff
-    # need to compare and reassign (if necessary) best_payoff for each state
-    # frontier = possible next states from current state s0.
-    # if b(s1) <= best_payoff
-    # then remove s1 from frontier and move to s2
+    @functools.lru_cache(maxsize=None)
+    def b(state):
+        """ Recalculate mines cumsum for each dug column """
+        array_state = np.array(state)
+        max_cumsum = np.zeros(np.shape(array_state))
 
-    # TODO: psuedocode of this section before implementation
+        for i, z in enumerate(array_state.flat):
+            if array_state.ndim == 2:
+                x = i // mine.len_y
+                y = i % mine.len_y
+                max_cumsum[x,y] = np.amax(mine.cumsum_mine[x,y,z:])
+            else:
+                max_cumsum[i] = np.amax(mine.cumsum_mine[i,z:])
 
-   
+        return np.sum(max_cumsum)
 
-    '''
-    Set frontier to be states(s) accessible from starting state(s0)
-    node to be explored = starting state
-    determine payoff value for states(s)
-    determine which state has highest payoff value
-    for each a
-    set that state to be the new node to be explored
-    recursively run algorithm untill we reach an end state
-    that state should = best_final_state
+    @functools.lru_cache(maxsize=None)
+    def expand(node):
+        """ Expands the nodes children where b(s) > best_payoff """
+        children = []
+        # Flatten state so we can iterate both 2D and 3D states
+        for child in node.expand(mine):
+            if child not in frontier and b(child.state) > best_payoff:
+                children.append(child)
+        return children
+        
 
-    '''
-    def bb_search_rec(state):
-        # set up variables for this state
-        best_state = state
-        best_payoff = mine.payoff(state)
+    """ MAIN LOOP """
+    while len(frontier) > 0:
+        node = frontier.pop(0)
+        payoff = mine.payoff(node.state)
+        
+        if payoff >= best_payoff:
+            best_payoff = payoff
+            best_node = node
+            frontier = node.expand(mine) # This line might be wrong, it does not include b(s), need to use expand(node) instead
+        else:
+            frontier.extend(expand(node))
 
-        # Iterate children
-        for action in mine.actions(state):
-            #print("action: ",action)
-            next_state = mine.result(state, action)
-            #print("next_state: ",next_state)
+    best_final_state = best_node.state
+    best_action_list = find_action_sequence(mine.initial, best_final_state)
 
-            # Check recursively for the best payoff in this tree (breadth first search)
-                #To be implemented
-                #check_payoff, check_state = bb_search_rec(next_state) 
-
-            # If the tree result above is better than what we have now, store it
-            if check_payoff > best_payoff:
-                best_state = check_state
-                best_payoff = check_payoff
-
-            # Return best state from this branch
-            return best_payoff, best_state
-
-    # Begin First Iteration
-    initial_state = mine.initial
-    best_payoff, best_final_state = bb_search_rec(initial_state)
-
-    best_action_list = find_action_sequence(initial_state, best_final_state)  
-
-    return best_payoff, best_action_list, best_final_state
+    return best_payoff, best_action_list, best_final_state, expand.cache_info()
 
 
 
@@ -725,11 +642,11 @@ if __name__ == '__main__':
         [ 1, 1, 1, 0],  
     ])
 
-    underground = some_2D_underground
+    underground = some_3D_underground
     state = some_2D_state
     
     # ## INSTANTIATE MINE ##
-    # underground = np.random.rand(5, 3) # 3 columns, 5 rows
+    # underground = np.random.randn(3, 4, 5) # 3 columns, 5 rows
     m = Mine(underground, dig_tolerance=1)
     # DEBUG_PRINTING(m, state)
 
@@ -748,7 +665,7 @@ if __name__ == '__main__':
     
     # # Best Branch search
     t0 = time.time()
-    best_payoff, best_action_list, best_final_state, ci = TestBB(m)
+    best_payoff, best_action_list, best_final_state, ci = search_bb_dig_plan(m)
     t1 = time.time()
 
     print ("BB solution -> ", best_final_state)

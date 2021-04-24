@@ -69,15 +69,15 @@ Here is the console output
     BB Best final state  ((2, 1, 1, 1), (1, 1, 0, 1), (0, 0, 0, 1))
     BB action list  [(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 3), (2, 3), (0, 0)]
     BB Computation took 3.002690076828003 seconds
-
-
 """
+
 import time
 import numpy as np
-from mining import Mine, search_dp_dig_plan, search_bb_dig_plan, find_action_sequence, TestBB
+from mining import Mine, search_dp_dig_plan, search_bb_dig_plan, find_action_sequence
 
 np.set_printoptions(3)
 
+some_2D_random = np.random.randn(3, 4)
 some_2D_underground = np.array([
         [-0.814,  0.637, 1.824, -0.563],
         [ 0.559, -0.234,-0.366,  0.074],
@@ -89,6 +89,7 @@ some_2D_state = np.array([
         0, 1, 2, 3, 2, 1, 0
     ])
 
+some_3D_random = np.random.randn(3, 4, 5)
 some_3D_underground = np.array([
         [# X0     Z0      Z1      Z2      Z3      Z4
             [ 0.455,  0.579,  -0.54, -0.995, -0.771], # Y0
@@ -139,19 +140,9 @@ def UndergroundTest(underground):
     mine = Mine(underground)
     mine.console_display()
 
-    # print('-------------- DP computations -------------- ')
-    # tic = time.time()
-    # best_payoff, best_a_list, best_final_state, ci = search_dp_dig_plan(mine)
-    # toc = time.time() 
-    # print('DP Best payoff:',best_payoff)
-    # print('DP Best final state:', best_final_state)  
-    # print('DP action list:', best_a_list)
-    # print('DP cache info:', ci)
-    # print('DP Computation took {} seconds\n'.format(toc-tic))   
-
     print('-------------- TestBB computations -------------- ')
     tic = time.time()
-    best_payoff, best_a_list, best_final_state, ci = TestBB(mine)
+    best_payoff, best_a_list, best_final_state, ci = search_bb_dig_plan(mine)
     toc = time.time() 
     print('DP Best payoff:',best_payoff)
     print('DP Best final state:', best_final_state)  
@@ -159,7 +150,16 @@ def UndergroundTest(underground):
     print('DP cache info:', ci)
     print('DP Computation took {} seconds\n'.format(toc-tic))   
 
-    
+    print('-------------- DP computations -------------- ')
+    tic = time.time()
+    best_payoff, best_a_list, best_final_state, ci = search_dp_dig_plan(mine)
+    toc = time.time() 
+    print('DP Best payoff:',best_payoff)
+    print('DP Best final state:', best_final_state)  
+    print('DP action list:', best_a_list)
+    print('DP cache info:', ci)
+    print('DP Computation took {} seconds\n'.format(toc-tic))   
+
     # print('-------------- BB computations -------------- ')
     # tic = time.time()
     # best_payoff, best_a_list, best_final_state = search_bb_dig_plan(mine)
@@ -187,8 +187,8 @@ if __name__=='__main__':
     pass
     print('='*10 + " 2D UNDERGROUND TEST " + '='*10)
     UndergroundTest(some_2D_underground)
-    
-    # print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
-    # UndergroundTest(some_3D_underground)
+
+    print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
+    UndergroundTest(some_3D_underground)
 
     
