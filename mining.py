@@ -475,49 +475,50 @@ def search_bb_dig_plan(mine):
 
     '''
     root = search.Node(mine.initial)
-    frontier = [root] # search.PriorityQueue(order='max', f=lambda n: b(n.state))
+    frontier = [root] 
     best_payoff = float('-inf')
     best_node = root
 
     @functools.lru_cache(maxsize=None)
     def b(state):
-        """ Recalculate mines cumsum for each dug column """
-        array_state = np.array(state)
-        max_cumsum = np.zeros(np.shape(array_state))
-
-        for i, z in enumerate(array_state.flat):
-            z = z if z < mine.len_z else z - 1
-            if array_state.ndim == 2:
-                x = i // mine.len_y
-                y = i % mine.len_y
-                max_cumsum[x,y] = np.amax(mine.cumsum_mine[x,y,z:])
+        """ Returns best possible return from some state when ignoring slope constraint """
+        state = np.array(state) - 1
+        state[state < 0] = 0
+        payoff = np.zeros(state.shape)
+        for i, z in enumerate(state.flat):
+            if state.ndim == 2:
+                c = (i // mine.len_y, i % mine.len_y,)
             else:
-                max_cumsum[i] = np.amax(mine.cumsum_mine[i,z:])
+                c = (i,)
+            
+            payoff[c] = np.amax(mine.cumsum_mine[c][z:])
 
-        return np.sum(max_cumsum)
+        return np.sum(payoff)
 
     @functools.lru_cache(maxsize=None)
     def expand(node):
-        """ Expands the nodes children where b(s) > best_payoff """
+        """ Returns a list of children of node, where b(s) > best_payoff """
         children = []
         # Flatten state so we can iterate both 2D and 3D states
         for child in node.expand(mine):
             if child not in frontier and b(child.state) > best_payoff:
                 children.append(child)
         return children
-        
 
     """ MAIN LOOP """
     while len(frontier) > 0:
         node = frontier.pop(0)
         payoff = mine.payoff(node.state)
-        
         if payoff >= best_payoff:
             best_payoff = payoff
             best_node = node
-            frontier = node.expand(mine) # This line might be wrong, it does not include b(s), need to use expand(node) instead
+
+            # Prune all other trees and re-expand from best node
+            frontier = []
+            frontier = expand(node) 
         else:
-            frontier.extend(expand(node))
+            # We haven't found the best yet, so keep branching
+            frontier.extend(expand(node)) 
 
     best_final_state = best_node.state
     best_action_list = find_action_sequence(mine.initial, best_final_state)
