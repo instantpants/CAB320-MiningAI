@@ -46,11 +46,9 @@ import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 import itertools
-
+import heapq
 import functools # @lru_cache(maxsize=32)
-
 from numbers import Number
-
 import search
 
 def my_team():
@@ -440,7 +438,7 @@ def search_dp_dig_plan(mine):
             next_state = mine.result(state, action)
 
             # Check recursively for the best payoff in this tree (depth first search)
-            check_payoff, check_state = search_rec(next_state)
+            check_payoff, check_state = search_rec(next_state) 
 
             # If the tree result above is better than what we have now, store it
             if check_payoff > best_payoff:
@@ -460,6 +458,51 @@ def search_dp_dig_plan(mine):
     best_action_list = find_action_sequence(initial_state, best_final_state)
 
     return best_payoff, best_action_list, best_final_state, search_rec.cache_info()
+
+def TestBB(mine):
+    # Initialize local variables
+    heap = []
+    visited = set()
+    best_payoff = 0
+    best_final_state = mine.initial
+    best_payoff = mine.payoff(best_final_state)
+    heapq.heappush( heap, (best_payoff, best_final_state))
+
+    @functools.lru_cache(maxsize=None)
+    def expand(state):
+        nonlocal visited, heap
+        array_state = np.array(state) # For indexing and other methods
+        for i, z in enumerate(array_state.flat):
+            if z + 1 > mine.len_z: # If next_z is deeper than allowed, skip it
+                continue
+            
+            # Get action by dimension
+            action = (i,) if array_state.ndim == 1 else (i // mine.len_y, i % mine.len_y)
+            node = mine.result(state, action)
+
+            if node in visited:  
+                continue 
+            
+            visited.add(node)
+            cost = mine.payoff(node)
+            if cost >= best_payoff:
+                heapq.heappush(heap, (cost, node))
+                
+
+    # Begin recursive search
+    while(len(heap) > 0):
+        cost, node = heapq.heappop(heap)
+        if cost >= best_payoff:
+            if not mine.is_dangerous(node):
+                best_final_state = node
+                best_payoff = cost
+            expand(node)
+                
+
+    best_action_list = find_action_sequence(mine.initial, best_final_state)
+
+    return best_payoff, best_action_list, best_final_state, expand.cache_info()
+    
 
     #### THOMAS PUT THIS HERE TO HELP YOU GET FAMILIAR WITH THE NODE STUFF ####
 
@@ -496,8 +539,6 @@ def search_dp_dig_plan(mine):
 
     #### END HELP FROM THOMAS ####
 
-    
-    
 def search_bb_dig_plan(mine):
     '''
     Compute, using Branch and Bound, the most profitable sequence of 
@@ -701,22 +742,25 @@ if __name__ == '__main__':
     # ## BEGIN SEARCHES ##
 
     # Dynamic Programming search
-    t0 = time.time()
-    best_payoff, best_action_list, best_final_state, ci = search_dp_dig_plan(m)
-    t1 = time.time()
+    # t0 = time.time()
+    # best_payoff, best_action_list, best_final_state, ci = search_dp_dig_plan(m)
+    # t1 = time.time()
 
-    # print ("Test DP solution -> ", best_final_state)
-    # print ("Test DP payoff -> ", best_payoff)
-    # print ("Test DP action -> ", best_action_list)
-    # print ("Test DP cache -> ", ci)
-    # print ("Test DP Solver took ",t1-t0, ' seconds')
+    # print ("DP solution -> ", best_final_state)
+    # print ("DP payoff -> ", best_payoff)
+    # print ("DP action -> ", best_action_list)
+    # print ("DP cache -> ", ci)
+    # print ("DP Solver took ",t1-t0, ' seconds')
     
     # # Best Branch search
     t0 = time.time()
-    best_payoff, best_action_list, best_final_state = search_bb_dig_plan(m)
+    best_payoff, best_action_list, best_final_state, ci = TestBB(m)
     t1 = time.time()
 
     print ("BB solution -> ", best_final_state)
+    print ("BB payoff -> ", best_payoff)
+    print ("BB action -> ", best_action_list)
+    print ("BB cache -> ", ci)
     print ("BB Solver took ",t1-t0, ' seconds')
 
     #search_bb_dig_plan(m)
