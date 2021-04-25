@@ -77,7 +77,7 @@ from mining import Mine, search_dp_dig_plan, search_bb_dig_plan, find_action_seq
 
 np.set_printoptions(3)
 
-some_2D_random = np.random.randn(3, 4)
+some_2D_random = np.random.randn(5, 4)
 some_2D_underground = np.array([
         [-0.814,  0.637, 1.824, -0.563],
         [ 0.559, -0.234,-0.366,  0.074],
@@ -140,24 +140,24 @@ def UndergroundTest(underground):
     mine = Mine(underground)
     mine.console_display()
 
-    print('-------------- TestBB computations -------------- ')
-    tic = time.time()
-    best_payoff, best_a_list, best_final_state, ci = search_bb_dig_plan(mine)
-    toc = time.time() 
-    print('DP Best payoff:',best_payoff)
-    print('DP Best final state:', best_final_state)  
-    print('DP action list:', best_a_list)
-    print('DP cache info:', ci)
-    print('DP Computation took {} seconds\n'.format(toc-tic))   
-
     print('-------------- DP computations -------------- ')
     tic = time.time()
-    best_payoff, best_a_list, best_final_state, ci = search_dp_dig_plan(mine)
+    best_payoff, best_a_list, best_final_state, cache_info = search_dp_dig_plan(mine)
     toc = time.time() 
     print('DP Best payoff:',best_payoff)
     print('DP Best final state:', best_final_state)  
     print('DP action list:', best_a_list)
-    print('DP cache info:', ci)
+    print('DP cache info:', cache_info)
+    print('DP Computation took {} seconds\n'.format(toc-tic))   
+
+    print('-------------- BB computations -------------- ')
+    tic = time.time()
+    best_payoff, best_a_list, best_final_state, cache_info = search_bb_dig_plan(mine)
+    toc = time.time() 
+    print('DP Best payoff:',best_payoff)
+    print('DP Best final state:', best_final_state)  
+    print('DP action list:', best_a_list)
+    print('DP cache info:', cache_info)
     print('DP Computation took {} seconds\n'.format(toc-tic))   
 
     # print('-------------- BB computations -------------- ')
@@ -186,9 +186,9 @@ def UndergroundTest(underground):
 if __name__=='__main__':
     pass
     print('='*10 + " 2D UNDERGROUND TEST " + '='*10)
-    UndergroundTest(some_2D_underground)
+    UndergroundTest(some_2D_random)
 
     print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
-    UndergroundTest(some_3D_underground)
+    UndergroundTest(some_3D_random)
 
     

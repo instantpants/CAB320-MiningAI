@@ -182,21 +182,22 @@ class Mine(search.Problem):
         self.dig_tolerance = dig_tolerance
         assert underground.ndim in (2,3)
 
+        self.len_x = np.size(underground, axis=0)
+        self.len_z = np.size(underground, axis=-1)
+
+        # Setup dimension specific values
         if underground.ndim == 2:
             # 2D Mine Setup
-            self.len_x = np.size(underground, axis=0)
             self.len_y = 0 # we're 2D mine atm so we won't have a y axis
-            self.len_z = np.size(underground, axis=1)
             self.initial = np.zeros((self.len_x,), dtype=int)
         else:
             # 3D Mine Setup
-            self.len_x = np.size(underground, axis=0)
             self.len_y = np.size(underground, axis=1)
-            self.len_z = np.size(underground, axis=2)
             self.initial = np.zeros((self.len_x, self.len_y,), dtype=int)
 
-        self.cumsum_mine = np.cumsum(underground, axis=-1) # use Z axis 
+        # Convert it to a tuple
         self.initial = convert_to_tuple(self.initial)
+        self.cumsum_mine = np.cumsum(underground, axis=-1) # use Z axis
 
     @functools.lru_cache(maxsize=None)
     def surface_neigbhours(self, loc):
@@ -257,16 +258,15 @@ class Mine(search.Problem):
 
         # Flatten state so we can iterate both 2D and 3D states
         for i, z in enumerate(state.flat):
+            next_z = z + 1 # Next dug value at this column
+            if next_z > self.len_z: # If next_z is deeper than allowed, skip it
+                continue
+
             # Get dimensional coordinate
             if state.ndim == 2:
                 coord = (i // self.len_y, i % self.len_y)
             else:
                 coord = (i,)
-
-            next_z = z + 1 # Next dug value at this column
-
-            if next_z > self.len_z: # If next_z is deeper than allowed, skip it
-                continue
 
             # Get neighbouring cells and values
             neighbours = self.surface_neigbhours(coord)
@@ -275,7 +275,7 @@ class Mine(search.Problem):
             # If all neighbour values adhere to slope constraint, add the coord to actions
             if np.all(abs(next_z - neighbour_vals) <= self.dig_tolerance):
                 actions.add(coord)
-        
+
         return tuple(actions)
   
     @functools.lru_cache(maxsize=None)
@@ -356,12 +356,15 @@ class Mine(search.Problem):
         No loops needed in the implementation!        
         '''
         state = np.array(state)
-        columns = np.nonzero(state) # Get the indexes of all dug columns (X or XY)
-        depth = state[columns] - 1  # Get depth vals - 1 as arrays are 0 terminated
-        coords = columns + (depth,) # Add the depth dimension so indexing is easy
+        if np.any(state > 0):
+            columns = np.nonzero(state) # Get the indexes of all dug columns (X or XY)
+            depth = state[columns] - 1  # Get depth vals - 1 as arrays are 0 terminated
+            coords = columns + (depth,) # Add the depth dimension so indexing is easy
 
-        # Sum the cumsum_mine values and return
-        return sum(self.cumsum_mine[coords])
+            # Sum the cumsum_mine values and return
+            return sum(self.cumsum_mine[coords])
+        else:
+            return 0
 
     @functools.lru_cache(maxsize=None)
     def is_dangerous(self, state):
@@ -420,40 +423,28 @@ def search_dp_dig_plan(mine):
     best_payoff, best_action_list, best_final_state
 
     '''
+    root = search.Node(mine.initial)
+
     @functools.lru_cache(maxsize=None) # This line will 'memoize' every call to function with some state
-    def search_rec(state):
-        '''
-        Memoized recursive function that will discover all possible states
-        and return the best values found, will cache already checked
-        states so no re-calculating for them is necessary.
-        '''
+    def search_rec(node):
+        ''' Recursive (DFS) search function that will dynamically locate the best payoff possible before returning. '''
         # Set up variables for this state
-        best_payoff = mine.payoff(state)
-        best_state = state
+        best_node = node
+        best_payoff = mine.payoff(node.state)
         
-        # Iterate children
-        for action in mine.actions(state):
-            next_state = mine.result(state, action)
+        for child in node.expand(mine):
+            check_payoff, check_node = search_rec(child)
 
-            # Check recursively for the best payoff in this tree (depth first search)
-            check_payoff, check_state = search_rec(next_state) 
-
-            # If the tree result above is better than what we have now, store it
             if check_payoff > best_payoff:
-                best_state = check_state
                 best_payoff = check_payoff
+                best_node = check_node
 
-        # Return best state from this branch
-        return best_payoff, best_state
+        return best_payoff, best_node
     
-    # Begin First Iteration
-    initial_state = mine.initial
-    best_payoff, best_final_state = search_rec(initial_state)
-
     # Find action sequence for best state
-    # I couldn't figure out how to return the action sequence recursively so this
-    # is the best I can think of.
-    best_action_list = find_action_sequence(initial_state, best_final_state)
+    best_payoff, best_node = search_rec(root)
+    best_final_state = best_node.state
+    best_action_list = find_action_sequence(mine.initial, best_final_state)
 
     return best_payoff, best_action_list, best_final_state, search_rec.cache_info()
 
@@ -481,18 +472,22 @@ def search_bb_dig_plan(mine):
 
     @functools.lru_cache(maxsize=None)
     def b(state):
-        """ Returns best possible return from some state when ignoring slope constraint """
+        """ Returns best possible sum from some state when ignoring slope constraint """
         state = np.array(state) - 1
         state[state < 0] = 0
         payoff = np.zeros(state.shape)
+
+        # Enumerate flat array to get coordinates suitable for both 2D and 3D arrays
         for i, z in enumerate(state.flat):
             if state.ndim == 2:
                 c = (i // mine.len_y, i % mine.len_y,)
             else:
                 c = (i,)
             
+            # Find best possible value after current z value in column c
             payoff[c] = np.amax(mine.cumsum_mine[c][z:])
 
+        # Return sum of best possible values
         return np.sum(payoff)
 
     @functools.lru_cache(maxsize=None)
@@ -507,14 +502,16 @@ def search_bb_dig_plan(mine):
 
     """ MAIN LOOP """
     while len(frontier) > 0:
-        node = frontier.pop(0)
+        node = frontier.pop(0) # FIFO queue
         payoff = mine.payoff(node.state)
+
         if payoff >= best_payoff:
+            # New best node has been found!
             best_payoff = payoff
             best_node = node
 
             # Prune all other trees and re-expand from best node
-            frontier = []
+            frontier = [] # We do this first or else we might run into 'in frontier' conflicts
             frontier = expand(node) 
         else:
             # We haven't found the best yet, so keep branching
@@ -644,7 +641,7 @@ if __name__ == '__main__':
         [ 1, 1, 1, 0],  
     ])
 
-    underground = some_3D_underground
+    underground = some_2D_underground
     state = some_2D_state
     
     # ## INSTANTIATE MINE ##
@@ -655,15 +652,15 @@ if __name__ == '__main__':
     # ## BEGIN SEARCHES ##
 
     # Dynamic Programming search
-    # t0 = time.time()
-    # best_payoff, best_action_list, best_final_state, ci = search_dp_dig_plan(m)
-    # t1 = time.time()
+    t0 = time.time()
+    best_payoff, best_action_list, best_final_state, ci = search_dp_dig_plan(m)
+    t1 = time.time()
 
-    # print ("DP solution -> ", best_final_state)
-    # print ("DP payoff -> ", best_payoff)
-    # print ("DP action -> ", best_action_list)
-    # print ("DP cache -> ", ci)
-    # print ("DP Solver took ",t1-t0, ' seconds')
+    print ("DP solution -> ", best_final_state)
+    print ("DP payoff -> ", best_payoff)
+    print ("DP action -> ", best_action_list)
+    print ("DP cache -> ", ci)
+    print ("DP Solver took ",t1-t0, ' seconds')
     
     # # Best Branch search
     t0 = time.time()

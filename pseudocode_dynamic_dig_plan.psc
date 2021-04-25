@@ -2,21 +2,21 @@
 	Pseudocode for the Dynamic Dig Plan function,
 	please don't change the syntax as I have syntax highlighting in 
 	notepad++ for making this kind of thing.
-
-	Thought I'd upload it incase you want something to work off when
-	doing the BB pseudocode (this is the industry standard for writing
-	pseudocode)
 */
 
 ALGORITHM DynamicDigPlan(mine)
+	/// Input: some problem to solve (open pit mine)
+	
 	@memoized_function
-	Function search_rec(state)
+	Function search_rec(node)
+		/// Recursive (DFS) search function that will dynamically retuen best payoff.
+		
 		// Recursive variables
-		best_payoff <- payoff(state)
-		best_state <- state
+		best_payoff <- payoff(node.state)
+		best_state <- node.state
 		
 		// Search state branches
-		for action in possible_actions
+		for child in node.children
 			child_state <- state_after_action
 			check_payoff, check_state <- search_rec(child_state)
 			
@@ -31,7 +31,8 @@ ALGORITHM DynamicDigPlan(mine)
 	End
 	
 	// Initial recursive function call
-	best_payoff, best_final_state <- search_rec(initial_state)
+	root = Node(mine.initial)
+	best_payoff, best_final_state <- search_rec(root)
 	
 	// Function to calculate best path to state
 	best_action_list <- calculate_path_to_state(best_final_state)
