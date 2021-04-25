@@ -17,8 +17,7 @@ ALGORITHM DynamicDigPlan(mine)
 		
 		// Search state branches
 		for child in node.children
-			child_state <- state_after_action
-			check_payoff, check_state <- search_rec(child_state)
+			check_payoff, check_state <- search_rec(child.state)
 			
 			// If branch is better update recursive variables
 			if check_payoff > best_payoff

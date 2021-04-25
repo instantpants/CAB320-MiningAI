@@ -429,12 +429,16 @@ def search_dp_dig_plan(mine):
     def search_rec(node):
         ''' Recursive (DFS) search function that will dynamically locate the best payoff possible before returning. '''
         # Set up variables for this state
-        best_node = node
         best_payoff = mine.payoff(node.state)
-        
+        best_node = node
+
+        # Iterate nodes children
         for child in node.expand(mine):
+
+            # Perform DFS on this branch
             check_payoff, check_node = search_rec(child)
 
+            # Check if branch payoff is better
             if check_payoff > best_payoff:
                 best_payoff = check_payoff
                 best_node = check_node
@@ -641,37 +645,30 @@ if __name__ == '__main__':
         [ 1, 1, 1, 0],  
     ])
 
-    underground = some_2D_underground
+    underground = some_3D_underground
     state = some_2D_state
     
     # ## INSTANTIATE MINE ##
     # underground = np.random.randn(3, 4, 5) # 3 columns, 5 rows
-    m = Mine(underground, dig_tolerance=1)
-    # DEBUG_PRINTING(m, state)
+    mine = Mine(underground, dig_tolerance=1)
 
-    # ## BEGIN SEARCHES ##
+    print('-------------- DP computations -------------- ')
+    tic = time.time()
+    best_payoff, best_a_list, best_final_state, cache_info = search_dp_dig_plan(mine)
+    toc = time.time() 
+    print('DP Best payoff:',best_payoff)
+    print('DP Best final state:', best_final_state)  
+    print('DP action list:', best_a_list)
+    print('DP cache info:', cache_info)
+    print('DP Computation took {} seconds\n'.format(toc-tic))   
 
-    # Dynamic Programming search
-    t0 = time.time()
-    best_payoff, best_action_list, best_final_state, ci = search_dp_dig_plan(m)
-    t1 = time.time()
-
-    print ("DP solution -> ", best_final_state)
-    print ("DP payoff -> ", best_payoff)
-    print ("DP action -> ", best_action_list)
-    print ("DP cache -> ", ci)
-    print ("DP Solver took ",t1-t0, ' seconds')
-    
-    # # Best Branch search
-    t0 = time.time()
-    best_payoff, best_action_list, best_final_state, ci = search_bb_dig_plan(m)
-    t1 = time.time()
-
-    print ("BB solution -> ", best_final_state)
-    print ("BB payoff -> ", best_payoff)
-    print ("BB action -> ", best_action_list)
-    print ("BB cache -> ", ci)
-    print ("BB Solver took ",t1-t0, ' seconds')
-
-    #search_bb_dig_plan(m)
+    print('-------------- BB computations -------------- ')
+    tic = time.time()
+    best_payoff, best_a_list, best_final_state, cache_info = search_bb_dig_plan(mine)
+    toc = time.time() 
+    print('DP Best payoff:',best_payoff)
+    print('DP Best final state:', best_final_state)  
+    print('DP action list:', best_a_list)
+    print('DP cache info:', cache_info)
+    print('DP Computation took {} seconds\n'.format(toc-tic))   
 

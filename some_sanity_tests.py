@@ -160,35 +160,12 @@ def UndergroundTest(underground):
     print('DP cache info:', cache_info)
     print('DP Computation took {} seconds\n'.format(toc-tic))   
 
-    # print('-------------- BB computations -------------- ')
-    # tic = time.time()
-    # best_payoff, best_a_list, best_final_state = search_bb_dig_plan(mine)
-    # toc = time.time() 
-    # print('BB Best payoff:',best_payoff)
-    # print('BB Best final state:', best_final_state)      
-    # print('BB action list:', best_a_list)
-    # print('BB Computation took {} seconds\n'.format(toc-tic))   
-
-    
-    # print('-------------- Find Action Sequence -------------- ')
-    # initial_state = np.zeros(state.shape)
-    # tic = time.time()
-    # sequence = find_action_sequence(initial_state, state)
-    # toc = time.time()
-    # print('s0:\n', initial_state, '\ns1:\n', state)
-    # print('Sequence:', sequence)
-    # print('Computation took {} seconds\n'.format(toc-tic))  
-
-    # print('-------------- Other Stuff -------------- ')
-    # actions = mine.actions(state)
-    # print('Possible Actions:\n', actions)
-
 if __name__=='__main__':
     pass
     print('='*10 + " 2D UNDERGROUND TEST " + '='*10)
-    UndergroundTest(some_2D_random)
+    UndergroundTest(some_2D_underground)
 
     print('='*10 + " 3D UNDERGROUND TEST " + '='*10)
-    UndergroundTest(some_3D_random)
+    UndergroundTest(some_3D_underground)
 
     

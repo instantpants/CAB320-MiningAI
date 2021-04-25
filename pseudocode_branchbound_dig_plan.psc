@@ -20,6 +20,7 @@ ALGORITHM BranchAndBoundDigPlan(mine)
 		return node.children where b(child.state) > best_payoff
 	End
 	
+	// Initialize root node and frontier
 	root = Node(mine.initial_state)
 	frontier << root
 	
