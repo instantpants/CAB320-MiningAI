@@ -355,7 +355,7 @@ class Mine(search.Problem):
         
         No loops needed in the implementation!        
         '''
-        state = np.array(state)
+        state = np.array(state)        
         if np.any(state > 0):
             columns = np.nonzero(state) # Get the indexes of all dug columns (X or XY)
             depth = state[columns] - 1  # Get depth vals - 1 as arrays are 0 terminated
@@ -413,7 +413,6 @@ def search_dp_dig_plan(mine):
     
     Return the sequence of actions, the final state and the payoff
     
-
     Parameters
     ----------
     mine : a Mine instance
@@ -421,36 +420,32 @@ def search_dp_dig_plan(mine):
     Returns
     -------
     best_payoff, best_action_list, best_final_state
-
     '''
-    root = search.Node(mine.initial)
-
     @functools.lru_cache(maxsize=None) # This line will 'memoize' every call to function with some state
     def search_rec(node):
-        ''' Recursive (DFS) search function that will dynamically locate the best payoff possible before returning. '''
-        # Set up variables for this state
         best_payoff = mine.payoff(node.state)
         best_node = node
-
-        # Iterate nodes children
+        
+        ''' Recursive (DFS) search function that will dynamically locate the best payoff possible before returning. '''
         for child in node.expand(mine):
-
             # Perform DFS on this branch
             check_payoff, check_node = search_rec(child)
 
-            # Check if branch payoff is better
+            # Update return values if branch was better
             if check_payoff > best_payoff:
                 best_payoff = check_payoff
                 best_node = check_node
-
+        
+        # Return best this branch has to offer
         return best_payoff, best_node
-    
-    # Find action sequence for best state
+
+    # Initial recursive function call
+    root = search.Node(mine.initial)
     best_payoff, best_node = search_rec(root)
     best_final_state = best_node.state
     best_action_list = find_action_sequence(mine.initial, best_final_state)
 
-    return best_payoff, best_action_list, best_final_state, search_rec.cache_info()
+    return best_payoff, best_action_list, best_final_state
 
 
 def search_bb_dig_plan(mine):
@@ -458,7 +453,6 @@ def search_bb_dig_plan(mine):
     Compute, using Branch and Bound, the most profitable sequence of 
     digging actions from the initial state of the mine.
         
-
     Parameters
     ----------
     mine : Mine
@@ -500,11 +494,11 @@ def search_bb_dig_plan(mine):
         children = []
         # Flatten state so we can iterate both 2D and 3D states
         for child in node.expand(mine):
-            if child not in frontier and b(child.state) > best_payoff:
+            if child not in frontier and b(child.state) >= best_payoff:
                 children.append(child)
         return children
 
-    """ MAIN LOOP """
+    # Main loop
     while len(frontier) > 0:
         node = frontier.pop(0) # FIFO queue
         payoff = mine.payoff(node.state)
@@ -524,7 +518,7 @@ def search_bb_dig_plan(mine):
     best_final_state = best_node.state
     best_action_list = find_action_sequence(mine.initial, best_final_state)
 
-    return best_payoff, best_action_list, best_final_state, expand.cache_info()
+    return best_payoff, best_action_list, best_final_state
 
 
 
@@ -570,37 +564,6 @@ def find_action_sequence(s0, s1):
     
     return convert_to_tuple(sequence)
 
-
-# REMOVE THIS BEFORE SUBMITTING
-def DEBUG_PRINTING(mine, state):
-    '''
-    Prints some mine debug info:
-
-    - Underground shape and contents
-    - State shape and contents
-    - Payoff for supplied state
-    - Actions for supplied state
-    - Whether the state is dangeous
-
-    Parameters
-    ----------
-    mine  : A mine object.
-
-    state : A state to be evaluated.
-    '''
-
-    best_payoff = np.argmax(mine.cumsum_mine, axis=1 if state.ndim == 1 else 0)
-
-    print('-------------- DEBUG INFO -------------- ')
-    print(f"Underground {mine.underground.shape}\n {mine.underground}")
-    print(f"Cumulative Sum {mine.cumsum_mine.shape}\n {mine.cumsum_mine}")
-    print("Best paying by column:\n", best_payoff)
-    print(f"State {state.shape}:\n {state}")
-    print("Payoff:\n", mine.payoff(convert_to_tuple(state)))
-    print("Possible Actions:\n", mine.actions(convert_to_tuple(state)))
-    print("Action Sequence from empty state:\n", find_action_sequence(np.zeros(state.shape), state))
-    print("Is Dangerous?:\n", mine.is_dangerous(state))
-
 if __name__ == '__main__':
     import time
     """
@@ -620,23 +583,23 @@ if __name__ == '__main__':
     ])
     
     some_3D_underground = np.array([
-        [# X0     Z0      Z1      Z2      Z3      Z4
-            [ 0.455,  0.579,  -0.54, -0.995, -0.771], # Y0
-            [ 0.049,  1.311, -0.061,  0.185, -1.959], # Y1
-            [ 2.38 , -1.404,  1.518, -0.856,  0.658], # Y2
-            [ 0.515, -0.236, -0.466, -1.241, -0.354]  # Y3
+        [
+            [ 0.455,  0.579,  -0.54, -0.995, -0.771],
+            [ 0.049,  1.311, -0.061,  0.185, -1.959],
+            [ 2.38 , -1.404,  1.518, -0.856,  0.658],
+            [ 0.515, -0.236, -0.466, -1.241, -0.354]
         ],
-        [# X1     Z0      Z1      Z2      Z3      Z4
-            [ 0.801,  0.072, -2.183,  0.858, -1.504], # Y0
-            [-0.09 , -1.191, -1.083,  0.78 , -0.763], # Y1
-            [-1.815, -0.839,  0.457, -1.029,  0.915], # Y2
-            [ 0.708, -0.227,  0.874,  1.563, -2.284]  # Y3
+        [
+            [ 0.801,  0.072, -2.183,  0.858, -1.504],
+            [-0.09 , -1.191, -1.083,  0.78 , -0.763],
+            [-1.815, -0.839,  0.457, -1.029,  0.915],
+            [ 0.708, -0.227,  0.874,  1.563, -2.284]
         ],
-        [# X2     Z0      Z1      Z2      Z3      Z4
-            [-0.857,  0.309, -1.623,  0.364,  0.097], # Y0
-            [-0.876,  1.188, -0.16 ,  0.888, -0.546], # Y1
-            [-1.936, -3.055, -0.535, -1.561, -1.992], # Y2
-            [ 0.316,  0.97 ,  1.097,  0.234, -0.296]  # Y3
+        [
+            [-0.857,  0.309, -1.623,  0.364,  0.097],
+            [-0.876,  1.188, -0.16 ,  0.888, -0.546],
+            [-1.936, -3.055, -0.535, -1.561, -1.992],
+            [ 0.316,  0.97 ,  1.097,  0.234, -0.296]
         ]
     ])
     some_3D_state = np.array([
@@ -645,30 +608,30 @@ if __name__ == '__main__':
         [ 1, 1, 1, 0],  
     ])
 
-    underground = some_3D_underground
+    underground = some_2D_underground
     state = some_2D_state
     
     # ## INSTANTIATE MINE ##
-    # underground = np.random.randn(3, 4, 5) # 3 columns, 5 rows
+    # underground = np.random.randn(3, 4, 5)
+    # underground = np.random.randn(5, 4)
     mine = Mine(underground, dig_tolerance=1)
+
+    print(underground.T)   
 
     print('-------------- DP computations -------------- ')
     tic = time.time()
-    best_payoff, best_a_list, best_final_state, cache_info = search_dp_dig_plan(mine)
+    best_payoff, best_a_list, best_final_state = search_dp_dig_plan(mine)
     toc = time.time() 
     print('DP Best payoff:',best_payoff)
     print('DP Best final state:', best_final_state)  
     print('DP action list:', best_a_list)
-    print('DP cache info:', cache_info)
     print('DP Computation took {} seconds\n'.format(toc-tic))   
 
     print('-------------- BB computations -------------- ')
     tic = time.time()
-    best_payoff, best_a_list, best_final_state, cache_info = search_bb_dig_plan(mine)
+    best_payoff, best_a_list, best_final_state = search_bb_dig_plan(mine)
     toc = time.time() 
-    print('DP Best payoff:',best_payoff)
-    print('DP Best final state:', best_final_state)  
-    print('DP action list:', best_a_list)
-    print('DP cache info:', cache_info)
-    print('DP Computation took {} seconds\n'.format(toc-tic))   
-
+    print('BB Best payoff:',best_payoff)
+    print('BB Best final state:', best_final_state)  
+    print('BB action list:', best_a_list)
+    print('BB Computation took {} seconds\n'.format(toc-tic))
