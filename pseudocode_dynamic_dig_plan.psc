@@ -6,36 +6,33 @@
 
 ALGORITHM DynamicDigPlan(mine)
 	/// Input: some problem to solve (open pit mine)
-	
 	@memoized_function
 	Function search_rec(node)
-		/// Recursive (DFS) search function that will dynamically retuen best payoff.
-		
-		// Recursive variables
+		/// Recursive (DFS) search that will dynamically return best payoff.
 		best_payoff <- payoff(node.state)
-		best_state <- node.state
+		best_node <- node
 		
-		// Search state branches
+		// Iterate nodes children and perform DFS
 		for child in node.children
-			check_payoff, check_state <- search_rec(child.state)
+			check_payoff, check_node <- search_rec(child.state)
 			
-			// If branch is better update recursive variables
+			// Update return values if branch was better
 			if check_payoff > best_payoff
-				best_state <- check_state
+				best_node <- check_node
 				best_payoff <- check_payoff
 			end
 		end
-		// Return best the branch has to offer
-		return best_payoff, best_state
+		// Return best this branch has to offer
+		return best_payoff, check_node
 	End
 	
 	// Initial recursive function call
-	root = Node(mine.initial)
-	best_payoff, best_final_state <- search_rec(root)
-	
-	// Function to calculate best path to state
-	best_action_list <- calculate_path_to_state(best_final_state)
-	
+	root = Node(mine.initial_state)
+	best_payoff, best_node <- search_rec(root)
+	best_final_state = best_node.state
+	best_action_list <- calculate_best_path_to_state(best_final_state)
+
+	// Return optimal solutions
 	return best_payoff, best_action_list, best_final_state
 END
 
